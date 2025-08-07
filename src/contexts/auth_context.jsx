@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 const API_CONFIG = {
   BASE_URL: process.env.NODE_ENV === 'production'
     ? 'https://hiddenskeleton.vercel.app/cinapi'
-    : 'http://localhost:3000', // Default to localhost for development if not specified
+    : 'https://hiddenskeleton.vercel.app/cinapi', // Default to localhost for development if not specified
   ENDPOINTS: {
     LOGIN: '/login',
     USER_INFO: '/user',
