@@ -141,7 +141,7 @@ const Statistics = () => {
             {stats.movie_counts.map((genre, index) => (
               <div key={index} className="flex items-center justify-between p-4 bg-tertiary rounded-lg">
                 <div>
-                  <h3 className="font-semibold">{genre.genre || 'Unknown'}</h3>
+                  <h3 className="font-semibold">{genre._id || 'Unknown'}</h3>
                   <p className="text-sm text-text-secondary">
                     {genre.count} movie{genre.count !== 1 ? 's' : ''}
                   </p>
