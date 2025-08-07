@@ -1,8 +1,6 @@
 
 // Global API Configuration
-const BACKEND_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://hiddenskeleton.vercel.app/cinapi'
-  : 'https://hiddenskeleton.vercel.app/cinapi'; // Using production URL for development too
+const BACKEND_URL = 'https://hiddenskeleton.vercel.app/cinapi/';
 
 // API Configuration and Utilities
 export const API_CONFIG = {
@@ -10,7 +8,7 @@ export const API_CONFIG = {
   ENDPOINTS: {
     // Auth endpoints
     LOGIN: '/login',
-    USER_INFO: '/user-info',
+    USER_INFO: '/user',
     
     // Movie endpoints
     MOVIES: '/movies',
@@ -18,8 +16,8 @@ export const API_CONFIG = {
     UPDATE_MOVIE: '/movies',
     DELETE_MOVIE: '/movies',
     SEARCH_MOVIES: '/search',
-    SEARCH_SUGGESTIONS: '/search/suggestions',
-    POPULAR_MOVIES: '/movies/popular',
+    SEARCH_SUGGESTIONS: '/suggestions',
+    POPULAR_MOVIES: '/popular',
     MOVIE_BY_ID: '/movies',
     
     // Genre endpoints
@@ -32,20 +30,20 @@ export const API_CONFIG = {
     USERS: '/users',
     
     // Statistics endpoints
-    STATISTICS: '/statistics',
-    TOTAL_MOVIES: '/statistics/movies',
-    TOTAL_USERS: '/statistics/users',
-    TOTAL_VIEWS: '/statistics/views',
+    STATISTICS: '/movie_counts',
+    TOTAL_MOVIES: '/total_movies',
+    TOTAL_USERS: '/total_users',
+    TOTAL_VIEWS: '/total_views',
     
     // System endpoints
-    INCREMENT_VIEWS: '/system/increment-views',
-    INCREMENT_DOWNLOADS: '/system/increment-downloads'
+    INCREMENT_VIEWS: '/views',
+    INCREMENT_DOWNLOADS: '/downloads'
   }
 }
 
 // Helper function to get full API URL
 export const getApiUrl = (endpoint) => {
-  return `${API_CONFIG.BASE_URL}${endpoint}`;
+  return `${API_CONFIG.BASE_URL}${endpoint || ''}`;
 }
 
 // HTTP Status Codes
