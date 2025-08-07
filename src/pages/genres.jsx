@@ -47,10 +47,10 @@ const Genres = () => {
         set_show_form(false)
         toast.success('Genre added successfully')
       } else {
-        toast.error(response.data.message || 'Failed to add genre')
+        toast.error(response.data.error || 'Failed to add genre')
       }
     } catch (error) {
-      toast.error('Failed to add genre')
+      toast.error('Failed to add genre' + error.message)
     } finally {
       set_adding(false)
     }
