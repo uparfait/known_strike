@@ -18,6 +18,7 @@ const Movies = () => {
 
   useEffect(() => {
     load_movies()
+    console.log("Loading movies")
   }, [])
 
   const load_movies = async () => {
