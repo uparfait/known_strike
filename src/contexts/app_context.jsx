@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState } from 'react'
 import { useAuth } from './auth_context'
-import { apiRequest } from '../../utils/api'
+import { apiRequest } from '../utils/api'
 
 const AppContext = createContext({})
 
