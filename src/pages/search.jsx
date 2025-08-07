@@ -29,7 +29,7 @@ const Search = () => {
       set_movies([])
       set_loaded_idx([])
       
-      const response = await api_request('GET', `/search?query=${encodeURIComponent(query)}`)
+      const response = await api_request('GET', `/search?q=${encodeURIComponent(query)}`)
       
       if (response.data.success) {
         const movies_data = response.data.movies || []
@@ -46,7 +46,7 @@ const Search = () => {
   const load_next_search = async () => {
     try {
       const response = await api_request('POST', '/search/next', {
-        query: query,
+        q: query,
         loaded_idx: loaded_idx
       })
       
@@ -58,7 +58,8 @@ const Search = () => {
       }
       return false
     } catch (error) {
-      toast.error('Failed to load more results')
+      toast.error('Failed to load more results' + error.message)
+      console.log(error)
       return false
     }
   }
