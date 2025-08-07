@@ -39,7 +39,8 @@ const Statistics = () => {
         movie_counts: counts_res.data.total_movies_along_genres || []
       })
     } catch (error) {
-      toast.error('Failed to load statistics')
+      toast.error('Failed to load statistics' + error.message)
+      console.log(error)
     } finally {
       set_loading(false)
     }
