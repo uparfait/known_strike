@@ -1,16 +1,14 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## Running on Repl.it
 
-In the project directory, you can run:
+Simply hit run once and start coding. Will hot reload the web view. 
 
-### `yarn start`
+## Running Scripts
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+You can open a new shell window by hitting command+shift+S on macOS or control+shift+S (you can also access shortcuts from the `?` in the bottom right corner).
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+When in the shell you can run any of the following scripts:
 
 ### `yarn test`
 

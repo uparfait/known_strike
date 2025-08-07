@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinevido - Movie Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #011627;
+            --bg-secondary: #0d2b45;
+            --bg-tertiary: #1d3b53;
+            --text-primary: #d6deeb;
+            --text-secondary: #a9bbc8;
+            --accent-primary: #7e57c2;
+            --accent-secondary: #5e35b1;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Itim', cursive;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Skeleton Loading Animation */
+        @keyframes pulse {
+            0% { background-color: var(--bg-tertiary); }
+            50% { background-color: var(--bg-secondary); }
+            100% { background-color: var(--bg-tertiary); }
+        }
+
+        .skeleton {
+            animation: pulse 1.5s infinite;
+            border-radius: var(--border-radius);
+        }
+
+        /* Layout Components */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .app-header {
+            background-color: var(--bg-secondary);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .app-logo img {
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .app-main {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--bg-secondary);
+            padding: 1rem 0;
+            height: calc(100vh - 70px);
+            position: sticky;
+            top: 70px;
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-item {
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sidebar-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--accent-primary);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 1.5rem;
+            min-height: calc(100vh - 70px);
+        }
+
+        .page-title {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Movie Card */
+        .movie-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .movie-thumbnail {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-thumbnail.skeleton {
+            height: 180px;
+        }
+
+        .movie-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .movie-thumbnail:hover img {
+            transform: scale(1.05);
+        }
+
+        .movie-thumbnail .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .movie-thumbnail:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .movie-details {
+            padding: 1rem;
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .movie-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .movie-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .movie-card:hover .movie-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background: var(--accent-primary);
+        }
+
+        /* Forms */
+        .form-container {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--bg-tertiary);
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-secondary);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Media Player */
+        .player-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .video-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: black;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .player-controls {
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .video-player:hover .player-controls {
+            opacity: 1;
+        }
+
+        .player-title {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+
+        .player-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Statistics */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .chart-container {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            height: 400px;
+        }
+
+        /* Notifications */
+        .notification-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            max-width: 350px;
+        }
+
+        .notification {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-left: 4px solid var(--success);
+        }
+
+        .notification-error {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-left: 4px solid var(--danger);
+        }
+
+        .notification-info {
+            background-color: rgba(14, 165, 233, 0.2);
+            border-left: 4px solid var(--info);
+        }
+
+        .notification-warning {
+            background-color: rgba(245, 158, 11, 0.2);
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                position: fixed;
+                left: -240px;
+                top: 70px;
+                z-index: 90;
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            
+            .player-container {
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .app-header {
+                padding: 0.75rem;
+            }
+            
+            .content-area {
+                padding: 1rem;
+            }
+            
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+            
+            .movie-thumbnail {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification Container -->
+    <div class="notification-container" id="notification-container"></div>
+    
+    <!-- App Header -->
+    <header class="app-header">
+        <div class="app-logo">
+            <i class="fas fa-film fa-2x" style="color: var(--accent-primary);"></i>
+            <h1>Cinevido</h1>
+        </div>
+        <div class="user-info" id="user-info">
+            <div class="skeleton" style="width: 120px; height: 24px;"></div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="app-main">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-item active" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="sidebar-item" data-page="movies">
+                <i class="fas fa-film"></i>
+                <span>Movies</span>
+            </div>
+            <div class="sidebar-item" data-page="add-movie">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Movie</span>
+            </div>
+            <div class="sidebar-item" data-page="genres">
+                <i class="fas fa-tags"></i>
+                <span>Genres</span>
+            </div>
+            <div class="sidebar-item" data-page="users">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </div>
+            <div class="sidebar-item" data-page="statistics">
+                <i class="fas fa-chart-bar"></i>
+                <span>Statistics</span>
+            </div>
+            <div class="sidebar-item" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </nav>
+        
+        <!-- Content Area -->
+        <main class="content-area" id="content-area">
+            <!-- Dashboard content will be loaded here -->
+            <div class="skeleton" style="width: 100%; height: 400px;"></div>
+        </main>
+    </div>
+
+    <script>
+        // Global configuration
+        const API_BASE_URL = 'https://hiddenskeleton.vercel.app/cinapi';
+        let authToken = localStorage.getItem('cinevido_token') || '';
+        let currentUser = null;
+        
+        // DOM Elements
+        const contentArea = document.getElementById('content-area');
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const userInfo = document.getElementById('user-info');
+        const notificationContainer = document.getElementById('notification-container');
+        
+        // State management
+        let currentPage = 'dashboard';
+        let loadedMovieIds = [];
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is authenticated
+            if (!authToken) {
+                showLogin();
+            } else {
+                try {
+                    // Fetch user info
+                    const response = await axios.get(`${API_BASE_URL}/user`, {
+                        headers: { Authorization: `Bearer ${authToken}` }
+                    });
+                    
+                    if (response.data.success) {
+                        currentUser = response.data.user;
+                        userInfo.innerHTML = `
+                            <div class="user-info">
+                                <img src="https://ui-avatars.com/api/?name=${currentUser.username}&background=${encodeURIComponent('#7e57c2')}&color=fff" alt="Avatar" class="avatar">
+                                <span>${currentUser.username}</span>
+                            </div>
+                        `;
+                        loadPage(currentPage);
+                    } else {
+                        showNotification('Session expired. Please login again.', 'error');
+                        setTimeout(showLogin, 2000);
+                    }
+                } catch (error) {
+                    console.error('User info error:', error);
+                    showNotification('Failed to fetch user information', 'error');
+                    setTimeout(showLogin, 2000);
+                }
+            }
+            
+            // Setup sidebar navigation
+            sidebarItems.forEach(item => {
+                if (!item.id) {
+                    item.addEventListener('click', () => {
+                        const page = item.dataset.page;
+                        currentPage = page;
+                        loadPage(page);
+                        
+                        // Update active state
+                        sidebarItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                    });
+                }
+            });
+            
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('cinevido_token');
+                authToken = '';
+                showLogin();
+            });
+        });
+        
+        // Show login form
+        function showLogin() {
+            contentArea.innerHTML = `
+                <div class="form-container">
+                    <h2 class="page-title"><i class="fas fa-sign-in-alt"></i> Admin Login</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-input" id="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+            `;
+            
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                try {
+                    const response = await axios.post(`${API_BASE_URL}/login`, { username, password });
+                    if (response.data.success) {
+                        authToken = response.data.token;
+                        localStorage.setItem('cinevido_token', authToken);
+                        showNotification('Login successful!', 'success');
+                        
+                        // Fetch user info
+                        const userResponse = await axios.get(`${API_BASE_URL}/user`, {
+                            headers: { Authorization: `Bearer ${authToken}` }
+                        });
+                        
+                        currentUser = userResponse.data.user;
+                        userInfo.innerHTML = `
+                            <div class="user-info">
+                                <img src="https://ui-avatars.com/api/?name=${currentUser.username}&background=${encodeURIComponent('#7e57c2')}&color=fff" alt="Avatar" class="avatar">
+                                <span>${currentUser.username}</span>
+                            </div>
+                        `;
+                        
+                        loadPage('dashboard');
+                    } else {
+                        showNotification('Invalid credentials', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Login failed. Please try again.', 'error');
+                    console.error('Login error:', error);
+                }
+            });
+        }
+        
+        // Load page content
+        async function loadPage(page) {
+            switch(page) {
+                case 'dashboard':
+                    await loadDashboard();
+                    break;
+                case 'movies':
+                    await loadMovies();
+                    break;
+                case 'add-movie':
+                    loadAddMovieForm();
+                    break;
+                case 'genres':
+                    await loadGenres();
+                    break;
+                case 'users':
+                    await loadUsers();
+                    break;
+                case 'statistics':
+                    await loadStatistics();
+                    break;
+                default:
+                    await loadDashboard();
+            }
+        }
+        
+        // Load Dashboard
+        async function loadDashboard() {
+            // Skeleton loading
+            contentArea.innerHTML = `
+                <h2 class="page-title"><i class="fas fa-home"></i> Dashboard</h2>
+                <div class="stats-container">
+                    <div class="skeleton stat-card" style="height: 150px;"></div>
+                    <div class="skeleton stat-card" style="height: 150px;"></div>
+                    <div class="skeleton stat-card" style="height: 150px;"></div>
+                    <div class="skeleton stat-card" style="height: 150px;"></div>
+                </div>
+                <h3 class="page-title"><i class="fas fa-fire"></i> Popular Movies</h3>
+                <div class="grid">
+                    ${Array(6).fill().map(() => `
+                        <div class="movie-card">
+                            <div class="movie-thumbnail skeleton"></div>
+                            <div class="movie-details">
+                                <div class="skeleton" style="height: 24px; width: 80%; margin-bottom: 8px;"></div>
+                                <div class="skeleton" style="height: 16px; width: 60%;"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            try {
+                // Fetch statistics
+                const [moviesRes, usersRes, viewsRes, downloadsRes] = await Promise.all([
+                    axios.get(`${API_BASE_URL}/total_movies`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                    axios.get(`${API_BASE_URL}/total_users`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                    axios.get(`${API_BASE_URL}/total_views`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                    axios.get(`${API_BASE_URL}/total_downloads`, { headers: { Authorization: `Bearer ${authToken}` } })
+                ]);
+                
+                // Fetch popular movies
+                const popularRes = await axios.get(`${API_BASE_URL}/popular`, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                // Render dashboard
+                contentArea.innerHTML = `
+                    <h2 class="page-title"><i class="fas fa-home"></i> Dashboard</h2>
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <i class="fas fa-film fa-2x"></i>
+                            <div class="stat-value">${moviesRes.data.total_movies}</div>
+                            <div class="stat-label">Total Movies</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-users fa-2x"></i>
+                            <div class="stat-value">${usersRes.data.total_users}</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-eye fa-2x"></i>
+                            <div class="stat-value">${viewsRes.data.total_views}</div>
+                            <div class="stat-label">Total Views</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-download fa-2x"></i>
+                            <div class="stat-value">${downloadsRes.data.total_downloads}</div>
+                            <div class="stat-label">Total Downloads</div>
+                        </div>
+                    </div>
+                    <h3 class="page-title"><i class="fas fa-fire"></i> Popular Movies</h3>
+                    <div class="grid" id="popular-movies">
+                        ${popularRes.data.movies.map(movie => createMovieCard(movie)).join('')}
+                    </div>
+                `;
+                
+                // Add event listeners to movie cards
+                document.querySelectorAll('.movie-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.closest('.movie-actions')) {
+                            const movieId = card.dataset.id;
+                            loadMovieDetail(movieId, card.dataset.linked_serie);
+                        }
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Dashboard error:', error);
+                showNotification('Failed to load dashboard data', 'error');
+            }
+        }
+        
+        // Create movie card HTML
+        function createMovieCard(movie) {
+            return `
+                <div class="movie-card" data-id="${movie._id}" data-linked_serie="${movie.linked_serie || ''}">
+                    <div class="movie-thumbnail">
+                        <img src="${movie.thumbnail_image}" alt="${movie.name}">
+                        <div class="play-overlay">
+                            <i class="fas fa-play-circle fa-3x"></i>
+                        </div>
+                    </div>
+                    <div class="movie-details">
+                        <h3 class="movie-title">${movie.name}</h3>
+                        <div class="movie-meta">
+                            <div class="movie-meta-item">
+                                <i class="fas fa-eye"></i>
+                                <span>${movie.views_short}</span>
+                            </div>
+                            <div class="movie-meta-item">
+                                <i class="fas fa-download"></i>
+                                <span>${movie.download_count_short}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-actions">
+                        <div class="action-btn" title="Edit" onclick="loadEditMovieForm('${movie._id}')">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="action-btn" title="Delete" onclick="deleteMovie('${movie._id}', '${movie.name}')">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Load movie list
+        async function loadMovies() {
+            // Skeleton loading
+            contentArea.innerHTML = `
+                <div class="page-title">
+                    <i class="fas fa-film"></i>
+                    <h2>Movies</h2>
+                    <div style="flex: 1;"></div>
+                    <div class="skeleton" style="width: 200px; height: 40px;"></div>
+                </div>
+                <div class="grid">
+                    ${Array(12).fill().map(() => `
+                        <div class="movie-card">
+                            <div class="movie-thumbnail skeleton"></div>
+                            <div class="movie-details">
+                                <div class="skeleton" style="height: 24px; width: 80%; margin-bottom: 8px;"></div>
+                                <div class="skeleton" style="height: 16px; width: 60%;"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            try {
+                // Fetch initial movies
+                const response = await axios.get(`${API_BASE_URL}/movies`, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                // Update loaded movie IDs
+                loadedMovieIds = response.data.movies.map(movie => movie._id);
+                
+                // Render movies
+                contentArea.innerHTML = `
+                    <div class="page-title">
+                        <i class="fas fa-film"></i>
+                        <h2>Movies</h2>
+                        <div style="flex: 1;"></div>
+                        <button class="btn btn-primary" onclick="loadAddMovieForm()">
+                            <i class="fas fa-plus"></i> Add Movie
+                        </button>
+                    </div>
+                    <div class="grid" id="movies-grid">
+                        ${response.data.movies.map(movie => createMovieCard(movie)).join('')}
+                    </div>
+                    <div class="load-more" style="text-align: center; margin-top: 2rem;">
+                        <button class="btn btn-primary" onclick="loadMoreMovies()">
+                            <i class="fas fa-sync"></i> Load More Movies
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listeners to movie cards
+                document.querySelectorAll('.movie-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.closest('.movie-actions')) {
+                            const movieId = card.dataset.id;
+                            loadMovieDetail(movieId, card.dataset.linked_serie);
+                        }
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Movies error:', error);
+                showNotification('Failed to load movies', 'error');
+            }
+        }
+        
+        // Load more movies
+        async function loadMoreMovies() {
+            try {
+                const response = await axios.post(`${API_BASE_URL}/movies/next`, {
+                    loaded_idx: loadedMovieIds
+                }, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                if (response.data.movies.length > 0) {
+                    // Update loaded movie IDs
+                    loadedMovieIds = [...loadedMovieIds, ...response.data.movies.map(movie => movie._id)];
+                    
+                    // Append new movies to grid
+                    const moviesGrid = document.getElementById('movies-grid');
+                    response.data.movies.forEach(movie => {
+                        moviesGrid.innerHTML += createMovieCard(movie);
+                    });
+                    
+                    // Reattach event listeners
+                    document.querySelectorAll('.movie-card').forEach(card => {
+                        card.addEventListener('click', (e) => {
+                            if (!e.target.closest('.movie-actions')) {
+                                const movieId = card.dataset.id;
+                                loadMovieDetail(movieId, card.dataset.linked_serie);
+                            }
+                        });
+                    });
+                    
+                    showNotification(`Loaded ${response.data.count} more movies`, 'success');
+                } else {
+                    showNotification('No more movies to load', 'info');
+                }
+            } catch (error) {
+                console.error('Load more error:', error);
+                showNotification('Failed to load more movies', 'error');
+            }
+        }
+        
+        // Load movie detail page
+        async function loadMovieDetail(movieId, linkedSerie = '') {
+
+            
+            // Skeleton loading
+            contentArea.innerHTML = `
+                <div class="skeleton" style="width: 100%; height: 500px;"></div>
+            `;
+            
+            try {
+                // Fetch movie details
+                const movieRes = await axios.get(`${API_BASE_URL}/movies/${movieId}`, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                const movie = movieRes.data.movie;
+                
+                // Fetch related movies
+                const relatedRes = await axios.post(`${API_BASE_URL}/related`, { id: movieId }, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                // Render movie detail
+                contentArea.innerHTML = `
+                    <div class="player-container">
+                        <div class="video-player">
+                            <video id="movie-player" width="100%" autoplay height="100%" controls poster="${movie.thumbnail_image}">
+                                <source src="${movie.watch_url}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <h2 class="player-title">${movie.name}</h2>
+                        <div class="player-meta">
+                            <div class="player-meta-item">
+                                <i class="fas fa-eye"></i> ${movie.views_short} views
+                            </div>
+                            <div class="player-meta-item">
+                                <i class="fas fa-download"></i> ${movie.download_count_short} downloads
+                            </div>
+                            <div class="player-meta-item">
+                                <i class="fas fa-calendar"></i> ${movie.release_date}
+                            </div>
+                        </div>
+                        <div class="player-actions">
+                            <button class="btn btn-primary" onclick="incrementDownloadCount('${movieId}')">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            <button class="btn" id="like-btn">
+                                <i class="far fa-thumbs-up"></i> Like
+                            </button>
+                            <button class="btn" id="save-btn">
+                                <i class="far fa-bookmark"></i> Save
+                            </button>
+                        </div>
+                        <p>${movie.description}</p>
+                    </div>
+                    
+                    <h3 class="page-title" style="margin-top: 2rem;">
+                        <i class="fas fa-link"></i> Linked Series
+                    </h3>
+                    <div class="grid" id="linked-series">
+                        <!-- Linked series will be loaded here -->
+                    </div>
+                    
+                    <h3 class="page-title">
+                        <i class="fas fa-film"></i> Recommended Movies
+                    </h3>
+                    <div class="grid" id="recommended-movies">
+                        ${relatedRes.data.related_movies.map(movie => createMovieCard(movie)).join('')}
+                    </div>
+                `;
+                
+                // Setup video player
+                const videoPlayer = document.getElementById('movie-player');
+                let viewIncremented = false;
+                
+                videoPlayer.addEventListener('play', () => {
+                    // Increment views after 3 seconds
+                    if (!viewIncremented) {
+                        setTimeout(async () => {
+                            try {
+                                await axios.post(`${API_BASE_URL}/views/${movieId}`, {}, {
+                                    headers: { Authorization: `Bearer ${authToken}` }
+                                });
+                                viewIncremented = true;
+                            } catch (error) {
+                                console.error('View increment error:', error);
+                            }
+                        }, 3000);
+                    }
+                });
+                
+                // Add event listeners to movie cards
+                document.querySelectorAll('.movie-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.closest('.movie-actions')) {
+                            const movieId = card.dataset.id;
+                            const linkedSerie = card.dataset.linked_serie;
+                            loadMovieDetail(movieId, linkedSerie);
+                        }
+                    });
+                });
+                
+                // Try to load linked series
+                try {
+                    const seriesRes = await axios.get(`${API_BASE_URL}/series/${movieId}/${linkedSerie}`, {
+                        headers: { Authorization: `Bearer ${authToken}` }
+                    });
+                    
+                    if (seriesRes.data.linked_series.length > 0) {
+                        document.getElementById('linked-series').innerHTML = 
+                            seriesRes.data.linked_series.map(movie => createMovieCard(movie)).join('');
+                    } else {
+                        document.getElementById('linked-series').innerHTML = `
+                            <p>No linked series found for this movie.</p>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Linked series error:', error);
+                    document.getElementById('linked-series').innerHTML = `
+                        <p>Failed to load linked series.</p>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Movie detail error:', error);
+                showNotification('Failed to load movie details', 'error');
+            }
+        }
+        
+        // Increment download count
+        async function incrementDownloadCount(movieId) {
+            try {
+                await axios.post(`${API_BASE_URL}/downloads/${movieId}`, {}, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                showNotification('Download started!', 'success');
+            } catch (error) {
+                console.error('Download error:', error);
+                showNotification('Failed to start download', 'error');
+            }
+        }
+        
+        // Load add movie form
+        function loadAddMovieForm() {
+            contentArea.innerHTML = `
+                <div class="form-container">
+                    <h2 class="page-title"><i class="fas fa-plus-circle"></i> Add New Movie</h2>
+                    <form id="movie-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Movie Name *</label>
+                                <input type="text" class="form-input" id="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Genre *</label>
+                                <input type="text" class="form-input" id="genre" list="genres-list" required>
+                                <datalist id="genres-list"></datalist>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Thumbnail URL *</label>
+                                <div class="url-preview-container">
+                                    <input type="url" class="form-input" id="thumbnail_image" required>
+                                    <div class="url-preview" id="thumbnail-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Watch URL *</label>
+                                <div class="url-preview-container">
+                                    <input type="url" class="form-input" id="watch_url" required>
+                                    <div class="url-preview" id="watch-preview"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Download URL *</label>
+                                <input type="url" class="form-input" id="download_url" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Release Date</label>
+                                <input type="date" class="form-input" id="release_date">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Display Language *</label>
+                                <input type="text" class="form-input" id="display_language" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <input type="checkbox" id="is_interpreted"> Is Interpreted?
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Interpreter</label>
+                                <input type="text" class="form-input" id="interpreter">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <input type="checkbox" id="is_serie"> Is Series?
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Linked Serie ID</label>
+                                <input type="text" class="form-input" id="linked_serie">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Description (100-500 characters) *</label>
+                            <textarea class="form-input" id="description" rows="4" minlength="100" maxlength="500" required></textarea>
+                            <div class="char-count"><span id="char-count">0</span>/500</div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Initial Views</label>
+                                <input type="number" class="form-input" id="views" value="0" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Initial Downloads</label>
+                                <input type="number" class="form-input" id="download_count" value="0" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Visibility</label>
+                            <select class="form-input" id="visibility">
+                                <option value="show">Show</option>
+                                <option value="hidden">Hidden</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Save Count (How many times to save)</label>
+                                <input type="number" class="form-input" id="save_count" value="1" min="1">
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Add Movie</button>
+                            <button type="button" class="btn" onclick="loadMovies()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            // Populate genres datalist
+            populateGenresList();
+            
+            // Setup URL previews
+            document.getElementById('thumbnail_image').addEventListener('input', function() {
+                updateUrlPreview(this.value, 'thumbnail-preview');
+            });
+            
+            document.getElementById('watch_url').addEventListener('input', function() {
+                updateUrlPreview(this.value, 'watch-preview');
+            });
+            
+            // Character count for description
+            document.getElementById('description').addEventListener('input', function() {
+                document.getElementById('char-count').textContent = this.value.length;
+            });
+            
+            // Form submission
+            document.getElementById('movie-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const saveCount = parseInt(document.getElementById('save_count').value) || 1;
+                const movieData = {
+                    name: document.getElementById('name').value,
+                    genre: document.getElementById('genre').value,
+                    download_url: document.getElementById('download_url').value,
+                    watch_url: document.getElementById('watch_url').value,
+                    thumbnail_image: document.getElementById('thumbnail_image').value,
+                    release_date: document.getElementById('release_date').value,
+                    is_interpreted: document.getElementById('is_interpreted').checked,
+                    interpreter: document.getElementById('interpreter').value,
+                    display_language: document.getElementById('display_language').value,
+                    is_serie: document.getElementById('is_serie').checked,
+                    linked_serie: document.getElementById('linked_serie').value,
+                    views: parseInt(document.getElementById('views').value) || 0,
+                    download_count: parseInt(document.getElementById('download_count').value) || 0,
+                    visibility: document.getElementById('visibility').value,
+                    description: document.getElementById('description').value
+                };
+                
+                try {
+                    // First check if movie already exists
+                    const existingRes = await axios.post(`${API_BASE_URL}/search`, {
+                        q: movieData.name
+                    }, {
+                        headers: { Authorization: `Bearer ${authToken}` }
+                    });
+                    
+                    if (existingRes.data.movies.length > 0) {
+                        if (confirm(`A movie with the name "${movieData.name}" already exists. Continue anyway?`)) {
+                            await saveMovieMultipleTimes(movieData, saveCount);
+                        }
+                    } else {
+                        await saveMovieMultipleTimes(movieData, saveCount);
+                    }
+                } catch (error) {
+                    console.error('Movie save error:', error);
+                    showNotification('Failed to save movie', 'error');
+                }
+            });
+        }
+        
+        // Update URL preview
+        function updateUrlPreview(url, previewId) {
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = '';
+            
+            if (url) {
+                if (url.match(/\.(jpeg|jpg|gif|png)$/)) {
+                    preview.innerHTML = `<img src="${url}" alt="Preview" style="max-width: 100px; max-height: 100px; margin-top: 8px;">`;
+                } else if (url.match(/youtube\.com|youtu\.be/)) {
+                    const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+                    if (videoId) {
+                        preview.innerHTML = `
+                            <iframe width="100%" height="100" 
+                                src="https://www.youtube.com/embed/${videoId}" 
+                                frameborder="0" allowfullscreen
+                                style="margin-top: 8px;">
+                            </iframe>
+                        `;
+                    }
+                } else if (url.match(/\.(mp4|webm|ogg)$/)) {
+                    preview.innerHTML = `
+                        <video width="100" height="100" controls style="margin-top: 8px;">
+                            <source src="${url}" type="video/mp4">
+                        </video>
+                    `;
+                }
+            }
+        }
+        
+        // Populate genres list
+        async function populateGenresList() {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/genres`, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                const datalist = document.getElementById('genres-list');
+                datalist.innerHTML = response.data.genres.map(genre => 
+                    `<option value="${genre.name}">`
+                ).join('');
+            } catch (error) {
+                console.error('Genres error:', error);
+            }
+        }
+        
+        // Save movie multiple times
+        async function saveMovieMultipleTimes(movieData, count) {
+            let successCount = 0;
+            
+            for (let i = 0; i < count; i++) {
+                try {
+                    await axios.post(`${API_BASE_URL}/movies`, movieData, {
+                        headers: { Authorization: `Bearer ${authToken}` }
+                    });
+                    successCount++;
+                } catch (error) {
+                    console.error(`Save attempt ${i+1} failed:`, error);
+                }
+            }
+            
+            if (successCount > 0) {
+                showNotification(`Movie saved successfully ${successCount} time(s)!`, 'success');
+                loadMovies();
+            } else {
+                showNotification('Failed to save movie', 'error');
+            }
+        }
+        
+        // Load edit movie form
+        async function loadEditMovieForm(movieId) {
+            // Skeleton loading
+            contentArea.innerHTML = `
+                <div class="skeleton" style="width: 100%; height: 800px;"></div>
+            `;
+            
+            try {
+                const response = await axios.get(`${API_BASE_URL}/movies/${movieId}`, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                const movie = response.data.movie;
+                
+                contentArea.innerHTML = `
+                    <div class="form-container">
+                        <h2 class="page-title"><i class="fas fa-edit"></i> Edit Movie</h2>
+                        <form id="movie-form">
+                            <input type="hidden" id="id" value="${movie._id}">
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Movie Name *</label>
+                                    <input type="text" class="form-input" id="name" value="${movie.name}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Genre *</label>
+                                    <input type="text" class="form-input" id="genre" list="genres-list" value="${movie.genre}" required>
+                                    <datalist id="genres-list"></datalist>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Thumbnail URL *</label>
+                                    <div class="url-preview-container">
+                                        <input type="url" class="form-input" id="thumbnail_image" value="${movie.thumbnail_image}" required>
+                                        <div class="url-preview" id="thumbnail-preview"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Watch URL *</label>
+                                    <div class="url-preview-container">
+                                        <input type="url" class="form-input" id="watch_url" value="${movie.watch_url}" required>
+                                        <div class="url-preview" id="watch-preview"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Download URL *</label>
+                                    <input type="url" class="form-input" id="download_url" value="${movie.download_url}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Release Date</label>
+                                    <input type="date" class="form-input" id="release_date" value="${movie.release_date || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Display Language *</label>
+                                    <input type="text" class="form-input" id="display_language" value="${movie.display_language}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <input type="checkbox" id="is_interpreted" ${movie.is_interpreted ? 'checked' : ''}> Is Interpreted?
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Interpreter</label>
+                                    <input type="text" class="form-input" id="interpreter" value="${movie.interpreter || ''}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <input type="checkbox" id="is_serie" ${movie.is_serie ? 'checked' : ''}> Is Series?
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Linked Serie ID</label>
+                                    <input type="text" class="form-input" id="linked_serie" value="${movie.linked_serie || ''}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Description (100-500 characters) *</label>
+                                <textarea class="form-input" id="description" rows="4" minlength="100" maxlength="500" required>${movie.description}</textarea>
+                                <div class="char-count"><span id="char-count">${movie.description.length}</span>/500</div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Views</label>
+                                    <input type="number" class="form-input" id="views" value="${movie.views}" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Downloads</label>
+                                    <input type="number" class="form-input" id="download_count" value="${movie.download_count}" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Visibility</label>
+                                <select class="form-input" id="visibility">
+                                    <option value="show" ${movie.visibility === 'show' ? 'selected' : ''}>Show</option>
+                                    <option value="hidden" ${movie.visibility === 'hidden' ? 'selected' : ''}>Hidden</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Update Movie</button>
+                                <button type="button" class="btn" onclick="loadMovies()">Cancel</button>
+                                <button type="button" class="btn btn-danger" onclick="deleteMovie('${movie._id}', '${movie.name}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                
+                // Populate genres datalist
+                populateGenresList();
+                
+                // Setup URL previews
+                updateUrlPreview(movie.thumbnail_image, 'thumbnail-preview');
+                updateUrlPreview(movie.watch_url, 'watch-preview');
+                
+                // Character count for description
+                document.getElementById('description').addEventListener('input', function() {
+                    document.getElementById('char-count').textContent = this.value.length;
+                });
+                
+                // Form submission
+                document.getElementById('movie-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const movieData = {
+                        name: document.getElementById('name').value,
+                        genre: document.getElementById('genre').value,
+                        download_url: document.getElementById('download_url').value,
+                        watch_url: document.getElementById('watch_url').value,
+                        thumbnail_image: document.getElementById('thumbnail_image').value,
+                        release_date: document.getElementById('release_date').value,
+                        is_interpreted: document.getElementById('is_interpreted').checked,
+                        interpreter: document.getElementById('interpreter').value,
+                        display_language: document.getElementById('display_language').value,
+                        is_serie: document.getElementById('is_serie').checked,
+                        linked_serie: document.getElementById('linked_serie').value,
+                        views: parseInt(document.getElementById('views').value) || 0,
+                        download_count: parseInt(document.getElementById('download_count').value) || 0,
+                        visibility: document.getElementById('visibility').value,
+                        description: document.getElementById('description').value
+                    };
+                    
+                    try {
+                        await axios.put(`${API_BASE_URL}/movies/${movie._id}`, movieData, {
+                            headers: { Authorization: `Bearer ${authToken}` }
+                        });
+                        
+                        showNotification('Movie updated successfully!', 'success');
+                        loadMovies();
+                    } catch (error) {
+                        console.error('Movie update error:', error);
+                        showNotification('Failed to update movie', 'error');
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Edit movie error:', error);
+                showNotification('Failed to load movie for editing', 'error');
+            }
+        }
+        
+        // Delete movie
+        async function deleteMovie(movieId, movieName) {
+            if (confirm(`Are you sure you want to delete "${movieName}"? This action cannot be undone.`)) {
+                try {
+                    await axios.delete(`${API_BASE_URL}/movies/${movieId}`, {
+                        headers: { Authorization: `Bearer ${authToken}` }
+                    });
+                    
+                    showNotification(`"${movieName}" deleted successfully`, 'success');
+                    loadMovies();
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    showNotification('Failed to delete movie', 'error');
+                }
+            }
+        }
+        
+        // Load genres
+        async function loadGenres() {
+            // Skeleton loading
+            contentArea.innerHTML = `
+                <div class="page-title">
+                    <i class="fas fa-tags"></i>
+                    <h2>Genres</h2>
+                    <div style="flex: 1;"></div>
+                    <div class="skeleton" style="width: 200px; height: 40px;"></div>
+                </div>
+                <div class="skeleton" style="width: 100%; height: 300px;"></div>
+            `;
+            
+            try {
+                const response = await axios.get(`${API_BASE_URL}/genres`, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                contentArea.innerHTML = `
+                    <div class="page-title">
+                        <i class="fas fa-tags"></i>
+                        <h2>Genres</h2>
+                        <div style="flex: 1;"></div>
+                        <button class="btn btn-primary" onclick="showAddGenreForm()">
+                            <i class="fas fa-plus"></i> Add Genre
+                        </button>
+                    </div>
+                    <div class="grid">
+                        ${response.data.genres.map(genre => `
+                            <div class="genre-card">
+                                <div class="genre-name">${genre.name}</div>
+                                <div class="genre-actions">
+                                    <button class="action-btn" onclick="editGenre('${genre._id}', '${genre.name}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn" onclick="deleteGenre('${genre._id}', '${genre.name}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Genres error:', error);
+                showNotification('Failed to load genres', 'error');
+            }
+        }
+        
+        // Load users
+        async function loadUsers() {
+            // Skeleton loading
+            contentArea.innerHTML = `
+                <div class="page-title">
+                    <i class="fas fa-users"></i>
+                    <h2>Users</h2>
+                </div>
+                <div class="skeleton" style="width: 100%; height: 400px;"></div>
+            `;
+            
+            try {
+                const response = await axios.get(`${API_BASE_URL}/users`, {
+                    headers: { Authorization: `Bearer ${authToken}` }
+                });
+                
+                contentArea.innerHTML = `
+                    <div class="page-title">
+                        <i class="fas fa-users"></i>
+                        <h2>Users</h2>
+                    </div>
+                    <div class="user-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${response.data.users.map(user => `
+                                    <tr>
+                                        <td>${user._id}</td>
+                                        <td>${user.username}</td>
+                                        <td>
+                                            <button class="action-btn" onclick="viewUser('${user._id}')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="action-btn" onclick="deleteUser('${user._id}', '${user.username}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Users error:', error);
+                showNotification('Failed to load users', 'error');
+            }
+        }
+        
+        // Load statistics
+        async function loadStatistics() {
+            // Skeleton loading
+            contentArea.innerHTML = `
+                <div class="page-title">
+                    <i class="fas fa-chart-bar"></i>
+                    <h2>Statistics</h2>
+                </div>
+                <div class="skeleton" style="width: 100%; height: 600px;"></div>
+            `;
+            
+            try {
+                const [downloadsRes, usersRes, viewsRes, moviesRes] = await Promise.all([
+                    axios.get(`${API_BASE_URL}/total_downloads`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                    axios.get(`${API_BASE_URL}/total_users`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                    axios.get(`${API_BASE_URL}/total_views`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                    axios.get(`${API_BASE_URL}/movie_counts`, { headers: { Authorization: `Bearer ${authToken}` } })
+                ]);
+                
+                contentArea.innerHTML = `
+                    <div class="page-title">
+                        <i class="fas fa-chart-bar"></i>
+                        <h2>Statistics</h2>
+                    </div>
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <i class="fas fa-download fa-2x"></i>
+                            <div class="stat-value">${downloadsRes.data.total_downloads}</div>
+                            <div class="stat-label">Total Downloads</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-users fa-2x"></i>
+                            <div class="stat-value">${usersRes.data.total_users}</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-eye fa-2x"></i>
+                            <div class="stat-value">${viewsRes.data.total_views}</div>
+                            <div class="stat-label">Total Views</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Movies by Genre</h3>
+                        <canvas id="genre-chart"></canvas>
+                    </div>
+                `;
+                
+                // Prepare data for genre chart
+                const genreData = moviesRes.data.total_movies_along_genres;
+                const labels = genreData.map(item => item._id);
+                const data = genreData.map(item => item.count);
+                
+                // Render chart
+                const ctx = document.getElementById('genre-chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Movies by Genre',
+                            data: data,
+                            backgroundColor: [
+                                'rgba(126, 87, 194, 0.7)',
+                                'rgba(94, 53, 177, 0.7)',
+                                'rgba(76, 29, 149, 0.7)',
+                                'rgba(63, 0, 125, 0.7)',
+                                'rgba(49, 27, 146, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgb(126, 87, 194)',
+                                'rgb(94, 53, 177)',
+                                'rgb(76, 29, 149)',
+                                'rgb(63, 0, 125)',
+                                'rgb(49, 27, 146)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Statistics error:', error);
+                showNotification('Failed to load statistics', 'error');
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                                  type === 'error' ? 'fa-exclamation-circle' : 
+                                  type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            notificationContainer.appendChild(notification);
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+        }
+        
+        // Expose functions to global scope for HTML onclick
+        window.loadAddMovieForm = loadAddMovieForm;
+        window.loadEditMovieForm = loadEditMovieForm;
+        window.deleteMovie = deleteMovie;
+        window.loadMoreMovies = loadMoreMovies;
+        window.incrementDownloadCount = incrementDownloadCount;
+    </script>
+</body>
+</html>
