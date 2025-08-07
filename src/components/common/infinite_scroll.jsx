@@ -1,64 +1,42 @@
 
-import React, { useEffect, useRef, useCallback } from 'react'
-import LoadingSkeleton from './loading_skeleton'
+import React, { useEffect, useRef } from 'react'
 
-const InfiniteScroll = ({
-  items,
-  renderItem,
-  loadMore,
-  hasMore,
-  loading,
-  className = '',
-  threshold = 200
+const InfiniteScroll = ({ 
+  hasMore = false, 
+  loading = false, 
+  onLoadMore, 
+  threshold = 100,
+  children 
 }) => {
-  const observerRef = useRef()
-  const loadingRef = useRef()
-
-  const lastItemRef = useCallback(
-    (node) => {
-      if (loading) return
-      if (observerRef.current) observerRef.current.disconnect()
-      
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadMore()
-        }
-      }, {
-        threshold: 0.1,
-        rootMargin: `${threshold}px`
-      })
-      
-      if (node) observerRef.current.observe(node)
-    },
-    [loading, hasMore, loadMore, threshold]
-  )
+  const containerRef = useRef(null)
 
   useEffect(() => {
-    return () => {
-      if (observerRef.current) observerRef.current.disconnect()
+    const handleScroll = () => {
+      if (!hasMore || loading || !onLoadMore) return
+
+      const container = containerRef.current
+      if (!container) return
+
+      const { scrollTop, scrollHeight, clientHeight } = container
+      
+      if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        onLoadMore()
+      }
     }
-  }, [])
+
+    const container = containerRef.current
+    if (container) {
+      container.addEventListener('scroll', handleScroll)
+      return () => container.removeEventListener('scroll', handleScroll)
+    }
+  }, [hasMore, loading, onLoadMore, threshold])
 
   return (
-    <div className={className}>
-      {items.map((item, index) => (
-        <div
-          key={item._id || index}
-          ref={index === items.length - 1 ? lastItemRef : null}
-        >
-          {renderItem(item, index)}
-        </div>
-      ))}
-      
+    <div ref={containerRef} className="h-full overflow-y-auto">
+      {children}
       {loading && (
-        <div ref={loadingRef} className="mt-6">
-          <LoadingSkeleton type="card" count={4} />
-        </div>
-      )}
-      
-      {!hasMore && items.length > 0 && (
-        <div className="text-center py-8 text-text-secondary">
-          No more items to load
+        <div className="flex justify-center py-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
         </div>
       )}
     </div>

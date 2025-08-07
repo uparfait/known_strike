@@ -1,134 +1,83 @@
-
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Search } from 'lucide-react'
-import { useAuth } from '../../contexts/auth_context'
-import { debounce } from 'lodash'
+import React, { useState, useEffect } from 'react'
+import { Search, X } from 'lucide-react'
+import { apiRequest } from '../../utils/api'
 
 const SearchSuggestions = ({ 
-  query, 
-  on_query_change, 
-  on_suggestion_select, 
-  placeholder 
+  query = '', 
+  onSuggestionClick, 
+  onClose, 
+  isVisible = false 
 }) => {
-  const { api_request } = useAuth()
   const [suggestions, setSuggestions] = useState([])
   const [loading, setLoading] = useState(false)
-  const [show_suggestions, setShowSuggestions] = useState(false)
-  const input_ref = useRef(null)
 
-  const fetch_suggestions = async (search_query) => {
-    if (!search_query || search_query.length < 2) {
+  useEffect(() => {
+    if (query.length < 2) {
       setSuggestions([])
-      setShowSuggestions(false)
       return
     }
 
-    try {
+    const fetchSuggestions = async () => {
       setLoading(true)
-      const response = await api_request('GET', `/api/search/suggestions?q=${encodeURIComponent(search_query)}`)
-      
-      if (response.success && response.suggestions) {
-        setSuggestions(response.suggestions)
-        setShowSuggestions(true)
-      } else {
+      try {
+        const response = await apiRequest('/api/search/suggestions', {
+          method: 'GET',
+          params: { query }
+        })
+
+        if (response.success) {
+          setSuggestions(response.data || [])
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error)
         setSuggestions([])
-        setShowSuggestions(false)
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error('Failed to fetch suggestions:', error)
-      setSuggestions([])
-      setShowSuggestions(false)
-    } finally {
-      setLoading(false)
     }
-  }
 
-  const debounced_search = useCallback(
-    debounce((search_query) => {
-      fetch_suggestions(search_query)
-    }, 300),
-    [api_request]
-  )
+    const debounceTimer = setTimeout(fetchSuggestions, 300)
+    return () => clearTimeout(debounceTimer)
+  }, [query])
 
-  useEffect(() => {
-    return () => {
-      debounced_search.cancel()
-    }
-  }, [debounced_search])
-
-  const handle_input_change = (e) => {
-    const new_query = e.target.value
-    if (on_query_change) {
-      on_query_change(new_query)
-    }
-    debounced_search(new_query)
-  }
-
-  const handle_suggestion_click = (suggestion) => {
-    if (on_suggestion_select) {
-      on_suggestion_select(suggestion)
-    }
-    setShowSuggestions(false)
-  }
-
-  const handle_blur = () => {
-    setTimeout(() => {
-      setShowSuggestions(false)
-    }, 150)
-  }
-
-  const handle_focus = () => {
-    if (query && suggestions.length > 0) {
-      setShowSuggestions(true)
-    }
+  if (!isVisible || query.length < 2) {
+    return null
   }
 
   return (
-    <div className="relative w-full" ref={input_ref}>
-      <div className="relative">
-        <input
-          type="text"
-          value={query}
-          onChange={handle_input_change}
-          onBlur={handle_blur}
-          onFocus={handle_focus}
-          placeholder={placeholder || 'Search movies...'}
-          className="w-full py-2 px-3 pr-10 rounded-md bg-secondary border border-tertiary text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
-        />
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-          {loading ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-accent-primary"></div>
-          ) : (
-            <Search size={20} className="text-gray-400" />
-          )}
-        </div>
+    <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-tertiary rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+      <div className="p-2 border-b border-tertiary flex items-center justify-between">
+        <span className="text-sm text-text-secondary flex items-center gap-2">
+          <Search size={14} />
+          Search suggestions
+        </span>
+        <button 
+          onClick={onClose}
+          className="text-text-secondary hover:text-text-primary"
+        >
+          <X size={14} />
+        </button>
       </div>
 
-      {show_suggestions && suggestions.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-secondary border border-tertiary rounded-md shadow-lg max-h-60 overflow-y-auto">
+      {loading ? (
+        <div className="p-4 text-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent mx-auto"></div>
+        </div>
+      ) : suggestions.length > 0 ? (
+        <div className="py-2">
           {suggestions.map((suggestion, index) => (
-            <div
+            <button
               key={index}
-              className="px-4 py-2 hover:bg-tertiary cursor-pointer text-text-primary"
-              onClick={() => handle_suggestion_click(suggestion)}
+              className="w-full px-4 py-2 text-left hover:bg-tertiary transition-colors text-text-primary"
+              onClick={() => onSuggestionClick(suggestion)}
             >
-              <div className="flex items-center space-x-3">
-                {suggestion.thumbnail && (
-                  <img
-                    src={suggestion.thumbnail}
-                    alt={suggestion.name}
-                    className="w-10 h-10 object-cover rounded"
-                  />
-                )}
-                <div>
-                  <div className="font-medium">{suggestion.name}</div>
-                  {suggestion.genre && (
-                    <div className="text-sm text-gray-400">{suggestion.genre}</div>
-                  )}
-                </div>
-              </div>
-            </div>
+              {suggestion}
+            </button>
           ))}
+        </div>
+      ) : (
+        <div className="p-4 text-center text-text-secondary">
+          No suggestions found
         </div>
       )}
     </div>

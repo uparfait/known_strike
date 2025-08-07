@@ -1,64 +1,70 @@
 
 import React, { useState, useEffect } from 'react'
-import { api } from '../../utils/api'
+import { ChevronDown } from 'lucide-react'
 
-const GenreFilter = ({ selectedGenre, onGenreChange, className = '' }) => {
-  const [genres, setGenres] = useState([])
-  const [loading, setLoading] = useState(true)
+const GenreFilter = ({ 
+  genres = [], 
+  selectedGenre = '', 
+  onGenreChange, 
+  loading = false 
+}) => {
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    fetchGenres()
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.genre-filter')) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
   }, [])
 
-  const fetchGenres = async () => {
-    try {
-      const response = await api.get('/get-all-genres')
-      if (response.data.success) {
-        setGenres(response.data.genres)
-      }
-    } catch (error) {
-      console.error('Error fetching genres:', error)
-    } finally {
-      setLoading(false)
-    }
+  const handleGenreSelect = (genre) => {
+    onGenreChange(genre)
+    setIsOpen(false)
   }
 
   if (loading) {
     return (
-      <div className={`flex space-x-2 ${className}`}>
-        {Array.from({ length: 5 }).map((_, index) => (
-          <div key={index} className="skeleton h-8 w-20"></div>
-        ))}
-      </div>
+      <div className="animate-pulse bg-tertiary h-10 w-48 rounded-lg"></div>
     )
   }
 
   return (
-    <div className={`flex flex-wrap gap-2 ${className}`}>
+    <div className="relative genre-filter">
       <button
-        onClick={() => onGenreChange('')}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
-          selectedGenre === ''
-            ? 'bg-accent-primary text-white'
-            : 'bg-secondary hover:bg-tertiary text-text-primary'
-        }`}
+        className="flex items-center justify-between w-48 px-4 py-2 bg-secondary border border-tertiary rounded-lg hover:bg-tertiary transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
       >
-        All Genres
+        <span className="text-text-primary">
+          {selectedGenre || 'All Genres'}
+        </span>
+        <ChevronDown 
+          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+        />
       </button>
-      
-      {genres.map((genre) => (
-        <button
-          key={genre._id}
-          onClick={() => onGenreChange(genre.name)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
-            selectedGenre === genre.name
-              ? 'bg-accent-primary text-white'
-              : 'bg-secondary hover:bg-tertiary text-text-primary'
-          }`}
-        >
-          {genre.name}
-        </button>
-      ))}
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-tertiary rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+          <button
+            className="w-full px-4 py-2 text-left hover:bg-tertiary transition-colors text-text-primary"
+            onClick={() => handleGenreSelect('')}
+          >
+            All Genres
+          </button>
+          {genres.map((genre) => (
+            <button
+              key={genre._id || genre.name}
+              className="w-full px-4 py-2 text-left hover:bg-tertiary transition-colors text-text-primary"
+              onClick={() => handleGenreSelect(genre.name)}
+            >
+              {genre.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
