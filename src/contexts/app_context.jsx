@@ -77,3 +77,47 @@ export const AppProvider = ({ children }) => {
     </AppContext.Provider>
   )
 }
+import React, { createContext, useContext, useState } from 'react'
+
+const AppContext = createContext({})
+
+export const useApp = () => {
+  const context = useContext(AppContext)
+  if (!context) {
+    throw new Error('useApp must be used within an AppProvider')
+  }
+  return context
+}
+
+export const AppProvider = ({ children }) => {
+  const [loaded_movie_ids, setLoadedMovieIds] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [search_query, setSearchQuery] = useState('')
+  const [current_page, setCurrentPage] = useState('dashboard')
+
+  const addLoadedMovieIds = (ids) => {
+    setLoadedMovieIds(prev => [...new Set([...prev, ...ids])])
+  }
+
+  const clearLoadedMovieIds = () => {
+    setLoadedMovieIds([])
+  }
+
+  const value = {
+    loaded_movie_ids,
+    addLoadedMovieIds,
+    clearLoadedMovieIds,
+    loading,
+    setLoading,
+    search_query,
+    setSearchQuery,
+    current_page,
+    setCurrentPage
+  }
+
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+    </AppContext.Provider>
+  )
+}
