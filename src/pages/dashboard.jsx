@@ -1,14 +1,16 @@
-
 import React, { useState, useEffect } from 'react'
-import { BarChart, Users, Film, Download, Eye } from 'lucide-react'
+import { Eye, Download, Users, Film, TrendingUp, Clock } from 'lucide-react'
+import { toast } from 'react-hot-toast'
+
+// API
+import { apiRequest, API_CONFIG } from '../utils/api'
+
+// Components
 import LoadingSkeleton from '../components/common/loading_skeleton'
 import MovieCard from '../components/common/movie_card'
 import InfiniteScroll from '../components/common/infinite_scroll'
-import { useApp } from '../contexts/app_context'
-import toast from 'react-hot-toast'
 
 const Dashboard = () => {
-  const { api_request } = useApp()
   const [stats, set_stats] = useState({
     total_movies: 0,
     total_users: 0,
@@ -29,10 +31,10 @@ const Dashboard = () => {
     try {
       set_loading_stats(true)
       const [movies_res, users_res, views_res, downloads_res] = await Promise.all([
-        api_request('GET', '/total_movies'),
-        api_request('GET', '/total_users'),
-        api_request('GET', '/total_views'),
-        api_request('GET', '/total_downloads')
+        apiRequest('GET', `${API_CONFIG.baseUrl}/total_movies`),
+        apiRequest('GET', `${API_CONFIG.baseUrl}/total_users`),
+        apiRequest('GET', `${API_CONFIG.baseUrl}/total_views`),
+        apiRequest('GET', `${API_CONFIG.baseUrl}/total_downloads`)
       ])
 
       set_stats({
@@ -51,7 +53,7 @@ const Dashboard = () => {
   const load_popular_movies = async () => {
     try {
       set_loading_popular(true)
-      const response = await api_request('GET', '/popular')
+      const response = await apiRequest('GET', `${API_CONFIG.baseUrl}/popular`)
       if (response.data.success) {
         const movies = response.data.movies || []
         set_popular_movies(movies)
@@ -66,10 +68,10 @@ const Dashboard = () => {
 
   const load_next_popular = async () => {
     try {
-      const response = await api_request('POST', '/popular/next', {
+      const response = await apiRequest('POST', `${API_CONFIG.baseUrl}/popular/next`, {
         loaded_idx: loaded_popular_idx
       })
-      
+
       if (response.data.success && response.data.movies?.length > 0) {
         const new_movies = response.data.movies
         set_popular_movies(prev => [...prev, ...new_movies])
@@ -113,7 +115,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <BarChart className="w-6 h-6 text-accent" />
+        <TrendingUp className="w-6 h-6 text-accent" />
         <h1 className="text-2xl font-semibold">Dashboard</h1>
       </div>
 
