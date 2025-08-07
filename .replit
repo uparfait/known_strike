@@ -76,7 +76,7 @@ support = true
       type = "pwa-node"
 
 [workflows]
-runButton = "React Dev Server"
+runButton = "Yarn Dev Server"
 
 [[workflows.workflow]]
 name = "React Dev Server"
@@ -90,6 +90,19 @@ args = "npm install"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run start"
+
+[[workflows.workflow]]
+name = "Yarn Dev Server"
+author = 46095939
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "yarn install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "yarn start"
 
 [[ports]]
 localPort = 5000
