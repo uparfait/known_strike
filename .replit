@@ -74,3 +74,15 @@ support = true
       sourceMaps = true
       stopOnEntry = false
       type = "pwa-node"
+
+[workflows]
+runButton = "React Dev Server"
+
+[[workflows.workflow]]
+name = "React Dev Server"
+author = 46095939
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
