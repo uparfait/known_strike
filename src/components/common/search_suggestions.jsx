@@ -20,7 +20,7 @@ const SearchSuggestions = ({
     const fetchSuggestions = async () => {
       setLoading(true)
       try {
-        const response = await apiRequest('/api/search/suggestions', {
+        const response = await apiRequest('/suggestions', {
           method: 'GET',
           params: { query }
         })
