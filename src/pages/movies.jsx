@@ -30,7 +30,8 @@ const Movies = () => {
         set_loaded_idx(movies_data.map(m => m._id))
       }
     } catch (error) {
-      toast.error('Failed to load movies')
+      toast.error('Failed to load movies' + error.message);
+      console.log(error);
     } finally {
       set_loading(false)
     }
