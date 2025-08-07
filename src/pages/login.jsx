@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { LogIn, Eye, EyeOff, Film } from 'lucide-react'
+import { Eye, EyeOff, LogIn, Film } from 'lucide-react'
 import { useAuth } from '../contexts/auth_context'
 import toast from 'react-hot-toast'
 
@@ -35,7 +34,7 @@ const Login = () => {
 
   const handle_submit = async (e) => {
     e.preventDefault()
-    
+
     if (!form_data.username.trim() || !form_data.password.trim()) {
       toast.error('Please fill in all fields')
       return
