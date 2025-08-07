@@ -32,11 +32,11 @@ const Statistics = () => {
       ])
 
       set_stats({
-        total_movies: movies_res.data.total || 0,
-        total_users: users_res.data.total || 0,
-        total_views: views_res.data.total || 0,
-        total_downloads: downloads_res.data.total || 0,
-        movie_counts: counts_res.data.counts || []
+        total_movies: movies_res.data.total_movies || 0,
+        total_users: users_res.data.total_users || 0,
+        total_views: views_res.data.total_views || 0,
+        total_downloads: downloads_res.data.total_downloads || 0,
+        movie_counts: counts_res.data.total_movies_along_genres || []
       })
     } catch (error) {
       toast.error('Failed to load statistics')
