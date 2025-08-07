@@ -31,10 +31,10 @@ const Dashboard = () => {
     try {
       set_loading_stats(true)
       const [movies_res, users_res, views_res, downloads_res] = await Promise.all([
-        apiRequest('GET', `${API_CONFIG.baseUrl}/total_movies`),
-        apiRequest('GET', `${API_CONFIG.baseUrl}/total_users`),
-        apiRequest('GET', `${API_CONFIG.baseUrl}/total_views`),
-        apiRequest('GET', `${API_CONFIG.baseUrl}/total_downloads`)
+        apiRequest('GET', `/total_movies`),
+        apiRequest('GET', `/total_users`),
+        apiRequest('GET', `/total_views`),
+        apiRequest('GET', `/total_downloads`)
       ])
 
       set_stats({
@@ -53,7 +53,7 @@ const Dashboard = () => {
   const load_popular_movies = async () => {
     try {
       set_loading_popular(true)
-      const response = await apiRequest('GET', `${API_CONFIG.baseUrl}/popular`)
+      const response = await apiRequest('GET', `/popular`)
       if (response.data.success) {
         const movies = response.data.movies || []
         set_popular_movies(movies)
@@ -68,7 +68,7 @@ const Dashboard = () => {
 
   const load_next_popular = async () => {
     try {
-      const response = await apiRequest('POST', `${API_CONFIG.baseUrl}/popular/next`, {
+      const response = await apiRequest('POST', `/popular/next`, {
         loaded_idx: loaded_popular_idx
       })
 
