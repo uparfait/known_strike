@@ -20,7 +20,7 @@ const SearchSuggestions = ({
     const fetchSuggestions = async () => {
       setLoading(true)
       try {
-        const response = await apiRequest('get','/suggestions?q=' + query)
+        const response = await apiRequest('get','/suggestions?q=' + encodeURIComponent(query))
 
         if (response.success) {
           setSuggestions(response.data || [])
