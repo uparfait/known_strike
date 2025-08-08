@@ -469,6 +469,22 @@ const AddMovie = () => {
                 placeholder="0"
               />
             </div>
+
+            {/* downloads */}
+
+             <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Downloads
+              </label>
+              <input
+                type="number"
+                value={form_data.views}
+                onChange={(e) => handle_input_change('download_count', parseInt(e.target.value) || 0)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                min="0"
+                placeholder="0"
+              />
+            </div>
           </div>
         </div>
 
