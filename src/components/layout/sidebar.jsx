@@ -45,8 +45,8 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-dark-200 border-t border-gray-700 z-50">
+      {/* Mobile Bottom Navigation with glass effect*/}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0  border-t border-gray-700 z-50 bg-dark-800 backdrop-blur-lg shadow-lg">
         <nav className="flex justify-around items-center py-2">
           {nav_items.slice(0, 5).map((item) => (
             <NavLink
