@@ -11,7 +11,7 @@ const AddMovie = () => {
   const { id } = useParams()
   const { api_request } = useApp()
   const is_editing = Boolean(id)
-  
+
   const [loading, set_loading] = useState(is_editing)
   const [submitting, set_submitting] = useState(false)
   const [genres, set_genres] = useState([])
@@ -19,7 +19,7 @@ const AddMovie = () => {
   const [new_genre, set_new_genre] = useState('')
   const [show_linked_search, set_show_linked_search] = useState(false)
   const [linked_search_query, set_linked_search_query] = useState('')
-  
+
   const [form_data, set_form_data] = useState({
     name: '',
     genre: '',
@@ -95,12 +95,12 @@ const AddMovie = () => {
 
   const handle_add_genre = async () => {
     if (!new_genre.trim()) return
-    
+
     try {
       const response = await api_request('POST', '/add/genre', {
         name: new_genre.trim()
       })
-      
+
       if (response.data.success) {
         await load_genres()
         set_form_data(prev => ({ ...prev, genre: new_genre.trim() }))
@@ -128,7 +128,7 @@ const AddMovie = () => {
 
   const handle_submit = async (e) => {
     e.preventDefault()
-    
+
     if (form_data.description.length < 100 || form_data.description.length > 500) {
       toast.error('Description must be between 100-500 characters')
       return
@@ -144,9 +144,9 @@ const AddMovie = () => {
       set_submitting(true)
       const endpoint = is_editing ? `/movies/${id}` : '/movies'
       const method = is_editing ? 'PUT' : 'POST'
-      
+
       const response = await api_request(method, endpoint, submit_data)
-      
+
       if (response.data.success) {
         toast.success(`Movie ${is_editing ? 'updated' : 'added'} successfully`)
         navigate('/movies')
@@ -186,7 +186,7 @@ const AddMovie = () => {
             <Film className="w-5 h-5 text-accent" />
             <h2 className="text-lg font-medium">Basic Information</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="label">Movie Name *</label>
@@ -199,7 +199,7 @@ const AddMovie = () => {
                 required
               />
             </div>
-            
+
             <div>
               <label className="label">Genre *</label>
               <div className="flex gap-2">
@@ -225,7 +225,7 @@ const AddMovie = () => {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              
+
               {show_genre_form && (
                 <div className="flex gap-2 mt-3 p-3 bg-tertiary rounded-lg border border-slate-600">
                   <input
@@ -264,7 +264,7 @@ const AddMovie = () => {
             <Image className="w-5 h-5 text-accent" />
             <h2 className="text-lg font-medium">Media & Links</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="label flex items-center gap-2">
@@ -293,7 +293,7 @@ const AddMovie = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="label flex items-center gap-2">
@@ -309,7 +309,7 @@ const AddMovie = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="label flex items-center gap-2">
                   <Download className="w-4 h-4" />
@@ -334,7 +334,7 @@ const AddMovie = () => {
             <FileText className="w-5 h-5 text-accent" />
             <h2 className="text-lg font-medium">Description</h2>
           </div>
-          
+
           <div>
             <label className="label">Movie Description (100-500 characters) *</label>
             <textarea
@@ -346,10 +346,9 @@ const AddMovie = () => {
               maxLength="500"
               required
             />
-            <div className={`text-sm mt-2 ${
-              form_data.description.length < 100 ? 'text-red-400' : 
-              form_data.description.length > 500 ? 'text-red-400' : 'text-green-400'
-            }`}>
+            <div className={`text-sm mt-2 ${form_data.description.length < 100 ? 'text-red-400' :
+                form_data.description.length > 500 ? 'text-red-400' : 'text-green-400'
+              }`}>
               {form_data.description.length}/500 characters
               {form_data.description.length < 100 && ' (minimum 100)'}
             </div>
@@ -362,7 +361,7 @@ const AddMovie = () => {
             <Calendar className="w-5 h-5 text-accent" />
             <h2 className="text-lg font-medium">Additional Details</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="label flex items-center gap-2">
@@ -376,7 +375,7 @@ const AddMovie = () => {
                 className="input w-full"
               />
             </div>
-            
+
             <div>
               <label className="label flex items-center gap-2">
                 <Globe className="w-4 h-4" />
@@ -391,7 +390,7 @@ const AddMovie = () => {
                 required
               />
             </div>
-            
+
             <div>
               <label className="label">Views</label>
               <input
@@ -412,7 +411,7 @@ const AddMovie = () => {
             <Users className="w-5 h-5 text-accent" />
             <h2 className="text-lg font-medium">Special Features</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Interpretation */}
             <div className="space-y-3">
@@ -425,7 +424,7 @@ const AddMovie = () => {
                 />
                 <span className="label">Is Interpreted?</span>
               </label>
-              
+
               {form_data.is_interpreted && (
                 <div className="pl-3">
                   <label className="label">Interpreter</label>
@@ -451,7 +450,7 @@ const AddMovie = () => {
                 />
                 <span className="label">Is Series?</span>
               </label>
-              
+
               {form_data.is_serie && (
                 <div className="pl-3 space-y-3">
                   <div>
@@ -472,26 +471,26 @@ const AddMovie = () => {
                       >
                         <Search className="w-4 h-4" />
                       </button>
+                      {show_linked_search && (
+                        <div className="p-3 bg-tertiary rounded-lg border border-slate-600">
+                          <input
+                            type="text"
+                            value={linked_search_query}
+                            onChange={e => set_linked_search_query(e.target.value)}
+                            className="input w-full mb-3"
+                            placeholder="Type to search for movie to link serie..."
+                          />
+                          <SearchSuggestions
+                            query={linked_search_query}
+                            onSuggestionClick={handle_linked_movie_select}
+                            onClose={() => set_show_linked_search(false)}
+                            isVisible={show_linked_search}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
-                  
-                  {show_linked_search && (
-                    <div className="p-3 bg-tertiary rounded-lg border border-slate-600">
-                      <input
-                        type="text"
-                        value={linked_search_query}
-                        onChange={e => set_linked_search_query(e.target.value)}
-                        className="input w-full mb-3"
-                        placeholder="Type to search for movie to link serie..."
-                      />
-                      <SearchSuggestions
-                        query={linked_search_query}
-                        onSuggestionClick={handle_linked_movie_select}
-                        onClose={() => set_show_linked_search(false)}
-                        isVisible={show_linked_search}
-                      />
-                    </div>
-                  )}
+
                 </div>
               )}
             </div>
@@ -517,7 +516,7 @@ const AddMovie = () => {
               </div>
             )}
           </button>
-          
+
           <button
             type="button"
             onClick={() => navigate('/movies')}
