@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useApp } from '../../contexts/app_context'
+import { useNavigate } from 'react-router-dom'
 
 const GenreBar = ({ selectedGenre = '', onGenreSelect, className = '' }) => {
   const [genres, setGenres] = useState([])
   const [loading, setLoading] = useState(false)
   const [scrollPosition, setScrollPosition] = useState(0)
   const { api_request } = useApp()
+  const Navigate = useNavigate()
 
   useEffect(() => {
     fetchGenres()
@@ -27,7 +29,9 @@ const GenreBar = ({ selectedGenre = '', onGenreSelect, className = '' }) => {
   }
 
   const handleGenreClick = (genre) => {
-    onGenreSelect(genre === selectedGenre ? '' : genre)
+    if (onGenreSelect) {
+      Navigate(`/category?category=${encodeURIComponent(genre)}`)
+    }
   }
 
   const scrollGenres = (direction) => {
@@ -73,8 +77,8 @@ const GenreBar = ({ selectedGenre = '', onGenreSelect, className = '' }) => {
         >
           {/* All Genres option */}
           <button
-            onClick={() => handleGenreClick('')}
-            className={`genre-item ${selectedGenre === '' ? 'active' : ''}`}
+            onClick={() => handleGenreClick('all')}
+            className={`genre-item ${selectedGenre === 'all' ? 'active' : ''}`}
           >
             All Genres
           </button>
