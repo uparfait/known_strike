@@ -38,10 +38,10 @@ const Dashboard = () => {
       ])
 
       set_stats({
-        total_movies: movies_res.data.total || 0,
-        total_users: users_res.data.total || 0,
-        total_views: views_res.data.total || 0,
-        total_downloads: downloads_res.data.total || 0
+        total_movies: movies_res.data.total_movies || 0,
+        total_users: users_res.data.total_users || 0,
+        total_views: views_res.data.total_views || 0,
+        total_downloads: downloads_res.data.total_downloads || 0
       })
     } catch (error) {
       toast.error('Failed to load statistics')

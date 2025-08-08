@@ -86,7 +86,7 @@ const Movies = () => {
 
     try {
       set_loading(true)
-      const response = await api_request('GET', `/search?query=${encodeURIComponent(search_query)}`)
+      const response = await api_request('GET', `/search?q=${encodeURIComponent(search_query)}`)
       if (response.data.success) {
         const search_results = response.data.movies || []
         set_movies(search_results)
@@ -125,7 +125,7 @@ const Movies = () => {
             value={search_query}
             onChange={(e) => set_search_query(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handle_search()}
-            className="input pl-10 w-full"
+            className="input pl-10 w-full bg-blue-950 text-white"
           />
         </div>
         <button

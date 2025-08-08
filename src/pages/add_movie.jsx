@@ -409,9 +409,16 @@ const AddMovie = () => {
                 <div className="mt-2">
                   <SearchSuggestions
                     query={linked_search_query}
-                    on_query_change={set_linked_search_query}
-                    on_select={handle_linked_movie_select}
-                    placeholder="Search for movie to link serie..."
+                    onSuggestionClick={handle_linked_movie_select}
+                    onClose={() => set_show_linked_search(false)}
+                    isVisible={show_linked_search}
+                  />
+                  <input
+                    type="text"
+                    value={linked_search_query}
+                    onChange={e => set_linked_search_query(e.target.value)}
+                    className="input w-full bg-blue-950 text-white mt-2"
+                    placeholder="Type to search for movie to link serie..."
                   />
                 </div>
               )}

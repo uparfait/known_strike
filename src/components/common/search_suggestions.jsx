@@ -21,9 +21,10 @@ const SearchSuggestions = ({
       setLoading(true)
       try {
         const response = await apiRequest('get','/suggestions?q=' + encodeURIComponent(query))
-
-        if (response.success) {
-          setSuggestions(response.data || [])
+        if (response.data && response.data.success) {
+          setSuggestions(response.data.suggestions || response.data.data || [])
+        } else {
+          setSuggestions([])
         }
       } catch (error) {
         console.error('Error fetching suggestions:', error)

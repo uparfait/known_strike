@@ -94,7 +94,7 @@ const Search = () => {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {Array(20).fill().map((_, index) => (
-              <LoadingSkeleton key={index} className="h-80" />
+              <LoadingSkeleton key={index} className="h-80 bg-blue-950" />
             ))}
           </div>
         ) : movies.length > 0 ? (
