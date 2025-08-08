@@ -81,7 +81,7 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
 
         <div className="flex items-center text-text-secondary text-xs sm:text-sm mb-2">
           <User size={12} className="mr-1 sm:w-4 sm:h-4" />
-          <span className="truncate">{movie.interpreter || 'N/A'}</span>
+          <span className="truncate">{movie.interpreter || movie.display_language}</span>
         </div>
 
         <div className="flex items-center text-text-secondary text-xs sm:text-sm mb-3">
@@ -92,11 +92,11 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
         <div className="flex justify-between text-text-secondary text-xs sm:text-sm">
           <div className="flex items-center">
             <Eye size={12} className="mr-1 sm:w-4 sm:h-4" />
-            <span>{movie.views || 0}</span>
+            <span>{movie.views_short || 0}</span>
           </div>
           <div className="flex items-center">
             <Download size={12} className="mr-1 sm:w-4 sm:h-4" />
-            <span>{movie.download_count || 0}</span>
+            <span>{movie.download_count_short || 0}</span>
           </div>
         </div>
       </div>
