@@ -4,7 +4,9 @@ import { Eye, Download, Play, Edit, Trash2, Languages, User } from 'lucide-react
 import { useNavigate } from 'react-router-dom'
 
 const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
-  console.log("MovieCard", movie)
+  // Debug log for movie object
+  console.log('Rendering MovieCard:', movie)
+  
   const navigate = useNavigate()
 
   const handleWatch = () => {
@@ -35,8 +37,8 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
     <div className="card hover:scale-105 transform transition-all duration-300">
       <div className="relative">
         <img
-          src={movie.poster || movie.thumbnail_image || '/placeholder-movie.jpg'}
-          alt={movie.name}
+          src={movie.thumbnail_image || 'https://via.placeholder.com/400x300?text=No+Image'}
+          alt={movie.name || 'No name'}
           className="w-full h-64 object-cover rounded-lg"
           onError={(e) => {
             e.target.src = 'https://via.placeholder.com/400x300?text=No+Image'
@@ -75,22 +77,22 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
           )}
         </div>
       </div>
-      
+
       <div className="mt-4">
         <h3 className="text-text-primary font-semibold text-lg mb-2 truncate">
-          {movie.name}
+          {movie.name || 'No name'}
         </h3>
-        
+
         <div className="flex items-center text-text-secondary text-sm mb-2">
           <User size={14} className="mr-1" />
-          <span className="truncate">{movie.interpreter}</span>
+          <span className="truncate">{movie.interpreter || 'N/A'}</span>
         </div>
-        
+
         <div className="flex items-center text-text-secondary text-sm mb-3">
           <Languages size={14} className="mr-1" />
-          <span>{movie.display_language}</span>
+          <span>{movie.display_language || 'N/A'}</span>
         </div>
-        
+
         <div className="flex justify-between text-text-secondary text-sm">
           <div className="flex items-center">
             <Eye size={14} className="mr-1" />
@@ -98,10 +100,10 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
           </div>
           <div className="flex items-center">
             <Download size={14} className="mr-1" />
-            <span>{movie.downloads || movie.download_count || 0}</span>
+            <span>{movie.download_count || 0}</span>
           </div>
         </div>
-        
+
         {movie.genre && (
           <div className="mt-2">
             <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
