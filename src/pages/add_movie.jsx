@@ -478,7 +478,7 @@ const AddMovie = () => {
               </label>
               <input
                 type="number"
-                value={form_data.views}
+                value={form_data.download_count}
                 onChange={(e) => handle_input_change('download_count', parseInt(e.target.value) || 0)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 min="0"
