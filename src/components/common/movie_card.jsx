@@ -6,7 +6,7 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
   const navigate = useNavigate()
 
   const handleWatch = () => {
-    navigate(`/watch?id=${movie._id}`)
+    navigate(`/watch?v_id=${movie._id}`)
   }
 
   const handleEdit = () => {
