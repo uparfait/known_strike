@@ -4,6 +4,7 @@ import { Eye, Download, Play, Edit, Trash2, Languages, User } from 'lucide-react
 import { useNavigate } from 'react-router-dom'
 
 const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
+  console.log("MovieCard", movie)
   const navigate = useNavigate()
 
   const handleWatch = () => {

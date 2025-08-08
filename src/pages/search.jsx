@@ -9,6 +9,8 @@ import { useApp } from '../contexts/app_context'
 import toast from 'react-hot-toast'
 
 const Search = () => {
+  const [searchInput, setSearchInput] = useState(query)
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const [search_params] = useSearchParams()
   const { api_request } = useApp()
   const query = search_params.get('q') || ''
@@ -67,10 +69,35 @@ const Search = () => {
   if (!query) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center w-full max-w-lg mx-auto">
           <SearchIcon className="w-16 h-16 text-text-secondary mx-auto mb-4" />
           <h1 className="text-xl font-semibold mb-2">No Search Query</h1>
-          <p className="text-text-secondary">Please enter a search term</p>
+          <p className="text-text-secondary mb-4">Please enter a search term</p>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search movies..."
+              value={searchInput}
+              onChange={e => {
+                setSearchInput(e.target.value)
+                setShowSuggestions(e.target.value.length >= 2)
+              }}
+              onFocus={() => searchInput.length >= 2 && setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onKeyPress={e => e.key === 'Enter' && window.location.replace(`/search?q=${encodeURIComponent(searchInput)}`)}
+              className="input pl-10 w-full bg-blue-950 text-white"
+            />
+            <SearchSuggestions
+              query={searchInput}
+              isVisible={showSuggestions}
+              onSuggestionClick={suggestion => {
+                setSearchInput(suggestion)
+                setShowSuggestions(false)
+                window.location.replace(`/search?q=${encodeURIComponent(suggestion)}`)
+              }}
+              onClose={() => setShowSuggestions(false)}
+            />
+          </div>
         </div>
       </div>
     )
@@ -90,7 +117,31 @@ const Search = () => {
             </span>
           )}
         </div>
-
+        <div className="relative max-w-lg mx-auto">
+          <input
+            type="text"
+            placeholder="Search movies..."
+            value={searchInput}
+            onChange={e => {
+              setSearchInput(e.target.value)
+              setShowSuggestions(e.target.value.length >= 2)
+            }}
+            onFocus={() => searchInput.length >= 2 && setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            onKeyPress={e => e.key === 'Enter' && window.location.replace(`/search?q=${encodeURIComponent(searchInput)}`)}
+            className="input pl-10 w-full bg-blue-950 text-white"
+          />
+          <SearchSuggestions
+            query={searchInput}
+            isVisible={showSuggestions}
+            onSuggestionClick={suggestion => {
+              setSearchInput(suggestion)
+              setShowSuggestions(false)
+              window.location.replace(`/search?q=${encodeURIComponent(suggestion)}`)
+            }}
+            onClose={() => setShowSuggestions(false)}
+          />
+        </div>
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {Array(20).fill().map((_, index) => (

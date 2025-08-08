@@ -9,6 +9,8 @@ import { useApp } from '../contexts/app_context'
 import toast from 'react-hot-toast'
 
 const Movies = () => {
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [suggestionQuery, setSuggestionQuery] = useState('')
   const navigate = useNavigate()
   const { api_request } = useApp()
   const [movies, set_movies] = useState([])
@@ -123,9 +125,25 @@ const Movies = () => {
             type="text"
             placeholder="Search movies..."
             value={search_query}
-            onChange={(e) => set_search_query(e.target.value)}
+            onChange={(e) => {
+              set_search_query(e.target.value)
+              setSuggestionQuery(e.target.value)
+              setShowSuggestions(e.target.value.length >= 2)
+            }}
+            onFocus={() => search_query.length >= 2 && setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             onKeyPress={(e) => e.key === 'Enter' && handle_search()}
             className="input pl-10 w-full bg-blue-950 text-white"
+          />
+          <SearchSuggestions
+            query={suggestionQuery}
+            isVisible={showSuggestions}
+            onSuggestionClick={(suggestion) => {
+              set_search_query(suggestion)
+              setShowSuggestions(false)
+              handle_search()
+            }}
+            onClose={() => setShowSuggestions(false)}
           />
         </div>
         <button
