@@ -30,7 +30,7 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = true }) => {
   }
 
   return (
-    <div className="card hover:scale-105 transform transition-all duration-300" onClick={handleWatch}>
+    <div className="card hover:scale-105 transform transition-all duration-300 cursor-pointer" onClick={handleWatch}>
       <div className="relative">
         <img
           src={movie.thumbnail_image || 'https://via.placeholder.com/400x300?text=No+Image'}
