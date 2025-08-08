@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react'
+import SearchSuggestions from '../components/common/search_suggestions'
 import { useNavigate } from 'react-router-dom'
 import { Film, Plus, Search } from 'lucide-react'
 import LoadingSkeleton from '../components/common/loading_skeleton'
