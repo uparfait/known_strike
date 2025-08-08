@@ -56,9 +56,10 @@ const Category = () => {
           loaded_idx: loaded_idx
         })
       } else {
-        // Note: Backend might not have genre-specific next loading
-        // This would need to be implemented in backend
-        return false
+        response = await api_request('POST', `/next/genre`, {
+          loaded_idx: loaded_idx,
+          genre: encodeURIComponent(category)
+        })
       }
       
       if (response.data.success && response.data.movies?.length > 0) {
