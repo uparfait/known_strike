@@ -129,8 +129,8 @@ const Search = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Search Header */}
-      <div className="flex flex-col gap-4">
+      {/* Search Header  make header fixed to top with full*/}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <SearchIcon className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
           <h1 className="text-xl sm:text-2xl font-semibold">
@@ -172,6 +172,7 @@ const Search = () => {
           )}
         </form>
       </div>
+
 
       {/* Results */}
       {loading ? (
