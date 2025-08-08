@@ -142,7 +142,7 @@ const Genres = () => {
                   <div>
                     <h3 className="font-semibold">{genre.name}</h3>
                     <p className="text-sm text-text-secondary">
-                      {genre.movie_count || 0} movies
+                      Saved
                     </p>
                   </div>
                 </div>
