@@ -54,6 +54,7 @@ const Dashboard = () => {
     try {
       set_loading_popular(true)
       const response = await apiRequest('GET', `/popular`)
+      console.log("Popular movies response:", response.data.movies)
       if (response.data.success) {
         const movies = response.data.movies || []
         set_popular_movies(movies)
