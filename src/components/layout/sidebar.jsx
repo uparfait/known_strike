@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { 
@@ -21,28 +20,53 @@ const Sidebar = () => {
   ]
 
   return (
-    <div className="w-64 bg-dark-200 border-r border-gray-700 flex-shrink-0">
-      <div className="p-6">
-        <nav className="space-y-2">
-          {nav_items.map((item) => (
+    <>
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:flex lg:w-64 bg-dark-200 border-r border-gray-700 flex-shrink-0">
+        <div className="p-4 lg:p-6 w-full">
+          <nav className="space-y-2">
+            {nav_items.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center space-x-3 px-3 py-2 lg:px-4 lg:py-3 rounded-lg transition-colors text-sm lg:text-base ${
+                    isActive
+                      ? 'bg-gray-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                  }`
+                }
+              >
+                <item.icon size={18} className="lg:w-5 lg:h-5" />
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-dark-200 border-t border-gray-700 z-50">
+        <nav className="flex justify-around items-center py-2">
+          {nav_items.slice(0, 5).map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                `flex flex-col items-center p-2 rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-300 hover:bg-dark-300 hover:text-white'
+                    ? 'text-gray-500'
+                    : 'text-gray-400 hover:text-white'
                 }`
               }
             >
               <item.icon size={20} />
-              <span>{item.label}</span>
+              <span className="text-xs mt-1">{item.label.split(' ')[0]}</span>
             </NavLink>
           ))}
         </nav>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -109,7 +109,7 @@ export const AppProvider = ({ children }) => {
     fetchGenres,
     
     // API access
-    api_request: apiRequest
+    api_request
   }
 
   return (

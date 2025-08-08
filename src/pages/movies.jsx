@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react'
 import SearchSuggestions from '../components/common/search_suggestions'
 import { useNavigate } from 'react-router-dom'
@@ -9,7 +8,7 @@ import InfiniteScroll from '../components/common/infinite_scroll'
 import { useApp } from '../contexts/app_context'
 import toast from 'react-hot-toast'
 
-const Movies = () => {
+const Movies = ({ selectedGenre = '' }) => {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [suggestionQuery, setSuggestionQuery] = useState('')
   const navigate = useNavigate()
@@ -21,20 +20,23 @@ const Movies = () => {
 
   useEffect(() => {
     load_movies()
-    console.log("Loading movies")
-  }, [])
+  }, [selectedGenre])
 
   const load_movies = async () => {
     try {
       set_loading(true)
-      const response = await api_request('GET', '/movies')
+      const endpoint = selectedGenre 
+        ? `/movies/genre/${encodeURIComponent(selectedGenre)}`
+        : '/movies'
+      
+      const response = await api_request('GET', endpoint)
       if (response.data.success) {
         const movies_data = response.data.movies || []
         set_movies(movies_data)
         set_loaded_idx(movies_data.map(m => m._id))
       }
     } catch (error) {
-      toast.error('Failed to load movies' + error.message);
+      toast.error('Failed to load movies: ' + error.message);
       console.log(error);
     } finally {
       set_loading(false)
@@ -43,7 +45,11 @@ const Movies = () => {
 
   const load_next_movies = async () => {
     try {
-      const response = await api_request('POST', '/movies/next', {
+      const endpoint = selectedGenre 
+        ? `/movies/genre/${encodeURIComponent(selectedGenre)}/next`
+        : '/movies/next'
+        
+      const response = await api_request('POST', endpoint, {
         loaded_idx: loaded_idx
       })
       
@@ -103,15 +109,18 @@ const Movies = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Film className="w-6 h-6 text-accent" />
-          <h1 className="text-2xl font-semibold">Movies</h1>
+          <Film className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
+          <h1 className="text-xl sm:text-2xl font-semibold">
+            {selectedGenre ? `${selectedGenre} Movies` : 'All Movies'}
+          </h1>
         </div>
         <button
           onClick={() => navigate('/add-movie')}
-          className="btn-primary flex items-center gap-2"
+          className="btn-iron flex items-center gap-2 w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           Add Movie
@@ -119,7 +128,7 @@ const Movies = () => {
       </div>
 
       {/* Search */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-secondary" />
           <input
@@ -134,73 +143,68 @@ const Movies = () => {
             onFocus={() => search_query.length >= 2 && setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             onKeyPress={(e) => e.key === 'Enter' && handle_search()}
-            className="input pl-10 w-full bg-blue-950 text-white"
+            className="input-field pl-10"
           />
-          <SearchSuggestions
-            query={suggestionQuery}
-            isVisible={showSuggestions}
-            onSuggestionClick={(suggestion) => {
-              set_search_query(suggestion)
-              setShowSuggestions(false)
-              handle_search()
-            }}
-            onClose={() => setShowSuggestions(false)}
-          />
+          
+          {showSuggestions && suggestionQuery && (
+            <SearchSuggestions
+              query={suggestionQuery}
+              isVisible={showSuggestions}
+              onSelect={(suggestion) => {
+                set_search_query(suggestion.name || suggestion)
+                setShowSuggestions(false)
+                handle_search()
+              }}
+              onClose={() => setShowSuggestions(false)}
+            />
+          )}
         </div>
+        
         <button
           onClick={handle_search}
-          className="btn-secondary"
+          className="btn-iron w-full sm:w-auto"
         >
           Search
         </button>
-        {search_query && (
-          <button
-            onClick={() => {
-              set_search_query('')
-              load_movies()
-            }}
-            className="btn-secondary"
-          >
-            Clear
-          </button>
-        )}
       </div>
 
       {/* Movies Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {Array(10).fill().map((_, index) => (
-            <LoadingSkeleton key={index} className="h-80" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          {[...Array(8)].map((_, index) => (
+            <LoadingSkeleton key={index} />
           ))}
         </div>
       ) : movies.length > 0 ? (
         <InfiniteScroll
           items={movies}
-          render_item={(movie) => (
+          render_item={(movie, index) => (
             <MovieCard
-              key={movie._id}
+              key={movie._id || index}
               movie={movie}
-              show_actions={true}
-              on_delete={() => handle_delete_movie(movie._id)}
-              on_edit={() => handle_edit_movie(movie._id)}
+              onEdit={handle_edit_movie}
+              onDelete={handle_delete_movie}
+              showActions={true}
             />
           )}
-          load_more={search_query ? null : load_next_movies}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+          load_more={load_next_movies}
+          loading={loading}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
         />
       ) : (
         <div className="text-center py-12">
-          <Film className="w-16 h-16 text-text-secondary mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No movies found</h3>
-          <p className="text-text-secondary mb-4">
-            {search_query ? 'Try different search terms' : 'Start by adding your first movie'}
+          <Film size={48} className="mx-auto mb-4 text-text-secondary opacity-50" />
+          <h3 className="text-lg font-medium text-text-primary mb-2">
+            {search_query ? 'No movies found' : 'No movies available'}
+          </h3>
+          <p className="text-text-secondary">
+            {search_query 
+              ? `Try searching for something else` 
+              : selectedGenre 
+                ? `No movies found in ${selectedGenre} genre`
+                : 'Start by adding some movies to your collection'
+            }
           </p>
-          <button
-            onClick={() => navigate('/add-movie')}
-            className="btn-primary"
-          >
-            Add Movie
-          </button>
         </div>
       )}
     </div>
