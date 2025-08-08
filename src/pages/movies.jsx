@@ -46,11 +46,12 @@ const Movies = ({ selectedGenre = '' }) => {
   const load_next_movies = async () => {
     try {
       const endpoint = selectedGenre 
-        ? `/movies/genre/${encodeURIComponent(selectedGenre)}/next`
+        ? `/next/genre`
         : '/movies/next'
         
       const response = await api_request('POST', endpoint, {
-        loaded_idx: loaded_idx
+        loaded_idx: loaded_idx,
+        genre: selectedGenre ? encodeURIComponent(selectedGenre) : ''
       })
       
       if (response.data.success && response.data.movies?.length > 0) {
