@@ -26,7 +26,7 @@ const Movies = ({ selectedGenre = '' }) => {
     try {
       set_loading(true)
       const endpoint = selectedGenre 
-        ? `/movies/genre/${encodeURIComponent(selectedGenre)}`
+        ? `/genre/${encodeURIComponent(selectedGenre)}`
         : '/movies'
       
       const response = await api_request('GET', endpoint)
