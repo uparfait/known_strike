@@ -6,7 +6,9 @@ import {
   Plus, 
   Tag, 
   Users, 
-  BarChart3 
+  BarChart3 ,
+  Logs,
+  Command
 } from 'lucide-react'
 
 const Sidebar = () => {
@@ -17,6 +19,8 @@ const Sidebar = () => {
     { path: '/genres', icon: Tag, label: 'Genres' },
     { path: '/users', icon: Users, label: 'Users' },
     { path: '/statistics', icon: BarChart3, label: 'Statistics' },
+    { path: '/logs', icon: Logs, label: 'Logs' },
+    { path: '/admin-actions', icon: Command, label: 'Logs&users' },
   ]
 
   return (
@@ -48,7 +52,7 @@ const Sidebar = () => {
       {/* Mobile Bottom Navigation with glass effect*/}
       <div className="lg:hidden fixed bottom-0 left-0 right-0  border-t border-gray-700 z-50 bg-dark-800 backdrop-blur-lg shadow-lg">
         <nav className="flex justify-around items-center py-2">
-          {nav_items.slice(0, 5).map((item) => (
+          {nav_items.slice(0, 7).map((item) => (
             <NavLink
               key={item.path}
               to={item.path}

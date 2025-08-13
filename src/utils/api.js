@@ -2,6 +2,7 @@
 // Global API Configuration
 const BACKEND_URL = 'https://hiddenskeleton.vercel.app/cinapi';
 
+
 // API Configuration and Utilities
 export const API_CONFIG = {
   BASE_URL: BACKEND_URL,
@@ -9,7 +10,6 @@ export const API_CONFIG = {
     // Auth endpoints
     LOGIN: '/login',
     USER_INFO: '/user',
-    
     // Movie endpoints
     MOVIES: '/movies',
     ADD_MOVIE: '/movies',
@@ -19,25 +19,30 @@ export const API_CONFIG = {
     SEARCH_SUGGESTIONS: '/suggestions',
     POPULAR_MOVIES: '/popular',
     MOVIE_BY_ID: '/movies',
-    
     // Genre endpoints
     GENRES: '/genres',
     ADD_GENRE: '/genres',
     DELETE_GENRE: '/genres',
     MOVIES_BY_GENRE: '/movies/genre',
-    
     // User endpoints
     USERS: '/users',
-    
     // Statistics endpoints
     STATISTICS: '/movie_counts',
     TOTAL_MOVIES: '/total_movies',
     TOTAL_USERS: '/total_users',
     TOTAL_VIEWS: '/total_views',
-    
     // System endpoints
     INCREMENT_VIEWS: '/views',
-    INCREMENT_DOWNLOADS: '/downloads'
+    INCREMENT_DOWNLOADS: '/downloads',
+    // Logs and admin endpoints
+    LOGS: '/logs',
+    CLEAR_LOGS: '/logs/clear',
+    COMMENTS: '/comments',
+    SAVE_COMMENT: '/comment',
+    DELETE_COMMENT: '/comment',
+    HIT_COMMENT: '/comment/hit',
+    WATCH_LIST: '/watchlist',
+    // Add more as needed
   }
 }
 
@@ -59,9 +64,12 @@ export const HTTP_STATUS = {
 
 // API Request Helper
 export const apiRequest = async (method, endpoint, data = null, headers = {}) => {
+  let token = localStorage.getItem('cinevido_token') || '';
+  
   const config = {
     method: method.toUpperCase(),
     headers: {
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
       ...headers
     }

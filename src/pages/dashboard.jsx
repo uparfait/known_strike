@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useAuth } from '../contexts/auth_context'
 import { Eye, Download, Users, Film, TrendingUp, Clock } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
@@ -11,13 +12,14 @@ import MovieCard from '../components/common/movie_card'
 import InfiniteScroll from '../components/common/infinite_scroll'
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [stats, set_stats] = useState({
     total_movies: 0,
     total_users: 0,
     total_views: 0,
     total_downloads: 0
   })
-  const [popular_movies, set_popular_movies] = useState([])
+  const [popular_movies, set_popular_movies] = useState(new Set([]))
   const [loading_stats, set_loading_stats] = useState(true)
   const [loading_popular, set_loading_popular] = useState(true)
   const [loaded_popular_idx, set_loaded_popular_idx] = useState([])
@@ -115,6 +117,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
+
       <div className="flex items-center gap-3">
         <TrendingUp className="w-6 h-6 text-accent" />
         <h1 className="text-2xl font-semibold">Dashboard</h1>

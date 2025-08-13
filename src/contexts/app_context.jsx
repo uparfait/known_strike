@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useState } from 'react'
-import { useAuth } from './auth_context'
 import { apiRequest } from '../utils/api'
 
 const AppContext = createContext({})
@@ -14,7 +13,20 @@ export const useApp = () => {
 }
 
 export const AppProvider = ({ children }) => {
-  const { api_request } = useAuth()
+  // useAuth must be called inside the component, not at module scope
+  let api_request = apiRequest;
+  try {
+    // Dynamically require useAuth only if React context is available
+    // This avoids invalid hook call at module scope
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { useAuth } = require('./auth_context');
+    const auth = useAuth();
+    if (auth && auth.api_request) {
+      api_request = auth.api_request;
+    }
+  } catch (e) {
+    // fallback to default apiRequest
+  }
   const [loaded_movie_ids, setLoadedMovieIds] = useState([])
   const [loaded_popular_ids, setLoadedPopularIds] = useState([])
   const [loaded_search_ids, setLoadedSearchIds] = useState([])
@@ -83,6 +95,36 @@ export const AppProvider = ({ children }) => {
     }
   }
 
+  // Backend API integrations for all endpoints
+  // Example: logs, comments, admin actions
+  const getLogs = async () => {
+    return await api_request('GET', '/logs');
+  };
+  const clearLogs = async () => {
+    return await api_request('POST', '/logs/clear');
+  };
+  const getComments = async (movieId) => {
+    return await api_request('GET', `/comments/${movieId}`);
+  };
+  const saveComment = async (data) => {
+    return await api_request('POST', '/comment', data);
+  };
+  const deleteComment = async (commentId) => {
+    return await api_request('DELETE', `/comment/${commentId}`);
+  };
+  const hitComment = async (data) => {
+    return await api_request('POST', '/comment/hit', data);
+  };
+  const getWatchList = async (userId) => {
+    return await api_request('GET', `/watchlist/${userId}`);
+  };
+  const addToWatchList = async (data) => {
+    return await api_request('POST', '/watchlist', data);
+  };
+  const removeFromWatchList = async (data) => {
+    return await api_request('DELETE', '/watchlist', data);
+  };
+
   const value = {
     // State
     loaded_movie_ids,
@@ -93,11 +135,20 @@ export const AppProvider = ({ children }) => {
     loading,
     search_query,
     current_page,
-    
     // Setters
     setGenres,
     setLoading,
     setSearchQuery,
+    // Backend API
+    getLogs,
+    clearLogs,
+    getComments,
+    saveComment,
+    deleteComment,
+    hitComment,
+    getWatchList,
+    addToWatchList,
+    removeFromWatchList,
     setCurrentPage,
     
     // Actions
@@ -109,7 +160,7 @@ export const AppProvider = ({ children }) => {
     fetchGenres,
     
     // API access
-    api_request: apiRequest
+    api_request
   }
 
   return (

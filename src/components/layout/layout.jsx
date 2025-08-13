@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import Header from './header'
 import Sidebar from './sidebar'
 import Movies from '../../pages/movies'
+import Dashboard from '../../pages/dashboard'
 
 const Layout = () => {
   const [selectedGenre, setSelectedGenre] = useState('')
@@ -13,8 +14,11 @@ const Layout = () => {
   }
 
   const renderContent = () => {
-    if (location.pathname === '/movies' || location.pathname === '/dashboard') {
+    if (location.pathname === '/movies') {
       return <Movies selectedGenre={selectedGenre} />
+    }
+    if (location.pathname === '/dashboard') {
+      return <Dashboard />
     }
     return <Outlet />
   }

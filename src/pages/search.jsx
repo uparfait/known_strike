@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Search as SearchIcon, Film, X } from 'lucide-react'
 import LoadingSkeleton from '../components/common/loading_skeleton'
 import MovieCard from '../components/common/movie_card'
+import ExactMatchHighlight from '../components/common/exact_match_highlight'
 import InfiniteScroll from '../components/common/infinite_scroll'
 import { useApp } from '../contexts/app_context'
 import toast from 'react-hot-toast'
@@ -28,6 +29,22 @@ const Search = () => {
     }
   }, [query])
 
+
+    const fetch_suggestions_for_no_results = async () => {
+    set_suggestions_loading(true)
+    try {
+      const response = await api_request('GET', `/search?q=${encodeURIComponent(query)}`)
+      if (response.data && response.data.success) {
+        set_suggestions(response.data.suggestions || response.data.movies || [])
+      } else {
+        set_suggestions([])
+      }
+    } catch (error) {
+      set_suggestions([])
+    } finally {
+      set_suggestions_loading(false)
+    }
+  }
   // Fetch search suggestions
   useEffect(() => {
     if (!showSuggestions || search_input.length < 2) {
@@ -68,8 +85,16 @@ const Search = () => {
         const movies_data = response.data.movies || []
         set_movies(movies_data)
         set_loaded_idx(movies_data.map(m => m._id))
+        // If no results, fetch suggestions
+        if (movies_data.length === 0) {
+          fetch_suggestions_for_no_results()
+        } else {
+          set_suggestions([])
+        }
+  // Fetch suggestions if no results
       }
     } catch (error) {
+      console.log(error);
       toast.error('Search failed')
     } finally {
       set_loading(false)
@@ -330,14 +355,27 @@ const Search = () => {
             </p>
             <InfiniteScroll
               items={movies}
-              render_item={(movie, index) => (
-                <MovieCard
-                  key={movie._id || index}
-                  movie={movie}
-                  showActions={false}
-                  className="bg-gray-800 hover:bg-gray-700 transition-colors"
-                />
-              )}
+              render_item={(movie, index) => {
+                // Highlight exact match in movie name
+                const isExact = movie.name?.toLowerCase() === query?.toLowerCase()
+                return (
+                  <div key={movie._id || index} className="relative">
+                    {isExact && (
+                      <div className="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded z-10 shadow">
+                        Exact Match
+                      </div>
+                    )}
+                    <MovieCard
+                      movie={{
+                        ...movie,
+                        name: <ExactMatchHighlight text={movie.name} match={isExact ? query : ''} />
+                      }}
+                      showActions={false}
+                      className="bg-gray-800 hover:bg-gray-700 transition-colors"
+                    />
+                  </div>
+                )
+              }}
               load_more={load_next_search}
               loading={loading}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
@@ -349,9 +387,43 @@ const Search = () => {
             <h3 className="text-lg font-medium text-white mb-2">
               No Results Found
             </h3>
-            <p className="text-gray-400">
+            <p className="text-gray-400 mb-4">
               No movies found for "{query}". Try searching with different keywords.
             </p>
+            {/* Suggestions if available */}
+            {suggestions_loading ? (
+              <div className="flex justify-center items-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-500"></div>
+              </div>
+            ) : suggestions.length > 0 ? (
+              <div className="max-w-md mx-auto bg-gray-800 rounded-lg shadow-lg border border-gray-700 mt-6">
+                <div className="p-3 border-b border-gray-700 text-left text-xs text-gray-400">Suggestions</div>
+                <div className="divide-y divide-gray-700">
+                  {suggestions.map((suggestion, idx) => (
+                    <button
+                      key={suggestion._id || idx}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors text-white flex items-center gap-3"
+                      onClick={() => handle_suggestion_select(suggestion)}
+                    >
+                      <img
+                        src={suggestion.thumbnail_image || 'https://via.placeholder.com/40x60?text=No+Image'}
+                        alt={suggestion.name}
+                        className="w-10 h-14 object-cover rounded flex-shrink-0"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/40x60?text=No+Image'
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">{suggestion.name}</div>
+                        <div className="text-xs text-gray-400 truncate">
+                          {suggestion.genre || 'Unknown'} | {suggestion.display_language || 'Unknown'}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
       </div>
