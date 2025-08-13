@@ -26,7 +26,8 @@ const Sidebar = () => {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:w-64 bg-dark-200 border-r border-gray-700 flex-shrink-0">
+      <div className="hidden lg:flex lg:w-64 bg-dark-200 border-r border-gray-700 flex-shrink-0"></div>
+      <div className="hidden lg:flex lg:w-64 fixed bg-dark-200 border-r border-gray-700 flex-shrink-0">
         <div className="p-4 lg:p-6 w-full">
           <nav className="space-y-2">
             {nav_items.map((item) => (

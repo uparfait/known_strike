@@ -1,6 +1,7 @@
 
 // Global API Configuration
-const BACKEND_URL = 'https://hiddenskeleton.vercel.app/cinapi';
+const k = true;
+const BACKEND_URL = k ? 'https://hiddenskeleton.vercel.app/cinapi': 'http://localhost:2025/cinapi';
 
 
 // API Configuration and Utilities

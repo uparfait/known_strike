@@ -75,7 +75,7 @@ const Login = () => {
                 type="text"
                 value={form_data.username}
                 onChange={(e) => handle_input_change('username', e.target.value)}
-                className="input w-full"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 placeholder="Enter your username"
                 required
               />
@@ -88,7 +88,7 @@ const Login = () => {
                   type={show_password ? 'text' : 'password'}
                   value={form_data.password}
                   onChange={(e) => handle_input_change('password', e.target.value)}
-                  className="input w-full pr-10"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter your password"
                   required
                 />
@@ -125,7 +125,7 @@ const Login = () => {
 
         {/* Footer */}
         <div className="text-center text-sm text-text-secondary">
-          <p>© 2024 CineVido Admin Panel</p>
+          <p>© {new Date().getFullYear()} CineVido Admin Panel</p>
         </div>
       </div>
     </div>

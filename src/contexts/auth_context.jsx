@@ -4,10 +4,11 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 
 // Centralized API configuration
+let k = true;
 const API_CONFIG = {
-  BASE_URL: process.env.NODE_ENV === 'production'
+  BASE_URL: k === true
     ? 'https://hiddenskeleton.vercel.app/cinapi'
-    : 'https://hiddenskeleton.vercel.app/cinapi', // Default to localhost for development if not specified
+    : 'http://localhost:2025/cinapi', // Default to localhost for development if not specified
   ENDPOINTS: {
     LOGIN: '/login',
     USER_INFO: '/user',

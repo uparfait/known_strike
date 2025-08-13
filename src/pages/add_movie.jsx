@@ -365,7 +365,7 @@ const AddMovie = () => {
                   <button
                     type="button"
                     onClick={handle_add_genre}
-                    className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                    className="px-3 py-2 border-gray-300 bg-gray-600  text-white rounded-lg transition-colors"
                   >
                     Add
                   </button>
@@ -784,7 +784,7 @@ const AddMovie = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full md:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 font-medium rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {submitting ? (
               <div className="flex items-center justify-center gap-2">
