@@ -55,7 +55,12 @@ const AddMovie = () => {
     is_serie: false,
     linked_serie: "",
     country: "",
-    players: ""
+    players: "",
+    watch_url_is_eframe: false,
+    has_trailer: false,
+    trailer_url: '',
+    time: "00:00:00",
+
   });
 
   // Load genres and movie details
@@ -147,7 +152,11 @@ const AddMovie = () => {
           is_serie: movie.is_serie || false,
           linked_serie: movie.linked_serie || "",
           country: movie.country || "",
-          players: movie.players || ""
+          players: movie.players || "",
+          watch_url_is_eframe: movie.watch_url_is_eframe || false,
+          has_trailer: movie.has_trailer || false,
+          trailer_url: movie.trailer_url || '',
+          time: movie.time || "00:00:00",
         });
       }
     } catch (error) {
@@ -228,7 +237,7 @@ const AddMovie = () => {
       } else {
         toast.error(
           response.data.message ||
-            `Failed to ${is_editing ? "update" : "add"} movie`
+          `Failed to ${is_editing ? "update" : "add"} movie`
         );
       }
     } catch (error) {
@@ -309,7 +318,7 @@ const AddMovie = () => {
             </div>
 
 
-                        {/* Movie Name */}
+            {/* Movie Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Players <span className="text-red-500">*</span>
@@ -449,9 +458,22 @@ const AddMovie = () => {
             <div className="space-y-4">
               {/* Watch URL */}
               <div>
+                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:border-indigo-500 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={form_data.watch_url_is_eframe}
+                    onChange={(e) =>
+                      handle_input_change("watch_url_is_eframe", e.target.checked)
+                    }
+                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Watch is E-frame
+                  </span>
+                </label>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
                   <Play className="w-4 h-4" />
-                  Watch URL <span className="text-red-500">*</span>
+                  {form_data.watch_url_is_eframe ? "E-frame code" : "Watch URL"} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="url"
@@ -460,7 +482,7 @@ const AddMovie = () => {
                     handle_input_change("watch_url", e.target.value)
                   }
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="https://example.com/watch"
+                  placeholder= {` ${form_data.watch_url_is_eframe ? "<eframe src='https://example.com/watch'><eframe>" : " https://example.com/watch"}` }
                   required
                 />
               </div>
@@ -484,6 +506,40 @@ const AddMovie = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Trailer */}
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:border-indigo-500 transition-colors">
+            <input
+              type="checkbox"
+              checked={form_data.has_trailer}
+              onChange={(e) =>
+                handle_input_change("has_trailer", e.target.checked)
+              }
+              className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+            />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Has trailer?
+            </span>
+          </label>
+
+          {form_data.has_trailer && (
+            <div className="pl-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Trailer URL
+              </label>
+              <input
+                type="text"
+                value={form_data.trailer_url}
+                onChange={(e) =>
+                  handle_input_change("trailer_url", e.target.value)
+                }
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Trailer URL"
+              />
+            </div>
+          )}
         </div>
 
         {/* Description Section */}
@@ -512,13 +568,12 @@ const AddMovie = () => {
               required
             />
             <div
-              className={`text-sm mt-2 ${
-                form_data.description.length < 100
-                  ? "text-red-500"
-                  : form_data.description.length > 500
+              className={`text-sm mt-2 ${form_data.description.length < 100
+                ? "text-red-500"
+                : form_data.description.length > 500
                   ? "text-red-500"
                   : "text-green-600"
-              }`}
+                }`}
             >
               {form_data.description.length}/500 characters
               {form_data.description.length < 100 && " (minimum 100)"}
@@ -584,6 +639,25 @@ const AddMovie = () => {
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 min="0"
                 placeholder="0"
+              />
+            </div>
+
+            {/* Time */}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Time
+              </label>
+              <input
+                type="text"
+                value={form_data.time}
+                onChange={(e) =>
+                  handle_input_change("time", e.target.value)
+                }
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                placeholder="00:00:00"
+                pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+                title="Format: HH:MM:SS"
               />
             </div>
 

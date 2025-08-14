@@ -1,69 +1,69 @@
-import React, { useState } from 'react'
-import { Navigate } from 'react-router-dom'
-import { Eye, EyeOff, LogIn, Film } from 'lucide-react'
-import { useAuth } from '../contexts/auth_context'
-import toast from 'react-hot-toast'
+import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { Eye, EyeOff, LogIn, Film } from "lucide-react";
+import { useAuth } from "../contexts/auth_context";
+import toast from "react-hot-toast";
 
 const Login = () => {
-  const { login, user, loading: auth_loading } = useAuth()
-  const [loading, set_loading] = useState(false)
-  const [show_password, set_show_password] = useState(false)
+  const { login, user, loading: auth_loading } = useAuth();
+  const [loading, set_loading] = useState(false);
+  const [show_password, set_show_password] = useState(false);
+
   const [form_data, set_form_data] = useState({
-    username: '',
-    password: ''
-  })
+    username: "",
+    password: "",
+  });
 
   if (auth_loading) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
       </div>
-    )
+    );
   }
 
   if (user) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handle_input_change = (field, value) => {
-    set_form_data(prev => ({
+    set_form_data((prev) => ({
       ...prev,
-      [field]: value
-    }))
-  }
+      [field]: value,
+    }));
+  };
 
   const handle_submit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!form_data.username.trim() || !form_data.password.trim()) {
-      toast.error('Please fill in all fields')
-      return
+      toast.error("Please fill in all fields");
+      return;
     }
 
-    set_loading(true)
+    set_loading(true);
     try {
-      await login(form_data.username, form_data.password)
+      await login(form_data.username, form_data.password);
     } catch (error) {
       // Error handling is done in the login function
     } finally {
-      set_loading(false)
+      set_loading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <div className="mx-auto w-24 h-24 mb-6">
+          <div className="mx-auto w-28 h-28 mb-6">
             <img
-              src="https://i.pinimg.com/1200x/39/66/8f/39668f9545b3491f96fbc9ac9e080da1.jpg"
+              src={`/favicon.ico`}
               alt="CineVido Admin"
-              className="w-full h-full object-cover rounded-full border-4 border-accent"
+              className="w-full h-full object-cover rounded-full border-accent"
             />
           </div>
-          <h1 className="text-3xl font-bold mb-2">CineVido Admin</h1>
-          <p className="text-text-secondary">Sign in to manage your movies</p>
+          <p className="text-text-secondary">Sign in for managment</p>
         </div>
 
         {/* Login Form */}
@@ -74,7 +74,9 @@ const Login = () => {
               <input
                 type="text"
                 value={form_data.username}
-                onChange={(e) => handle_input_change('username', e.target.value)}
+                onChange={(e) =>
+                  handle_input_change("username", e.target.value)
+                }
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 placeholder="Enter your username"
                 required
@@ -85,9 +87,11 @@ const Login = () => {
               <label className="label">Password</label>
               <div className="relative">
                 <input
-                  type={show_password ? 'text' : 'password'}
+                  type={show_password ? "text" : "password"}
                   value={form_data.password}
-                  onChange={(e) => handle_input_change('password', e.target.value)}
+                  onChange={(e) =>
+                    handle_input_change("password", e.target.value)
+                  }
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter your password"
                   required
@@ -125,11 +129,11 @@ const Login = () => {
 
         {/* Footer */}
         <div className="text-center text-sm text-text-secondary">
-          <p>© {new Date().getFullYear()} CineVido Admin Panel</p>
+          <p>2025 - {new Date().getFullYear()} cvcx</p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

@@ -12,7 +12,6 @@ const Header = ({ onGenreSelect, selectedGenre }) => {
   const [search_query, set_search_query] = useState('')
   const [show_suggestions, set_show_suggestions] = useState(false)
   const [show_mobile_menu, set_show_mobile_menu] = useState(false)
-
   const handle_search = (e) => {
     e.preventDefault()
     if (search_query.trim()) {
@@ -40,13 +39,12 @@ const Header = ({ onGenreSelect, selectedGenre }) => {
         {/* Logo and title */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           <img 
-            src="https://i.pinimg.com/1200x/39/66/8f/39668f9545b3491f96fbc9ac9e080da1.jpg" 
+            src={`/favicon.ico`}
             alt="Cinevido" 
-            className="h-6 w-6 sm:h-8 sm:w-8 rounded-full"
+            className="h-14 w-14 sm:h-16 sm:w-16 rounded-full"
           />
           <h1 className="text-lg sm:text-xl font-bold text-white">
             <span className="hidden sm:inline">Cinevido Admin</span>
-            <span className="sm:hidden">Cinevido</span>
           </h1>
         </div>
 
