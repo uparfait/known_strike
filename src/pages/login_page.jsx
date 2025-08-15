@@ -38,7 +38,7 @@ const LoginPage = () => {
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
           <img
-            src="https://i.pinimg.com/1200x/39/66/8f/39668f9545b3491f96fbc9ac9e080da1.jpg"
+            src="https://i.pinimg.com/736x/16/63/dc/1663dcec9d21bd576c719d0a6d645bc5.jpg"
             alt="Cinevido"
             className="mx-auto h-16 w-16 rounded-full"
           />

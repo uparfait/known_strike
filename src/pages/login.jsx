@@ -58,7 +58,7 @@ const Login = () => {
         <div className="text-center">
           <div className="mx-auto w-28 h-28 mb-6">
             <img
-              src={`/favicon.ico`}
+              src={`https://i.pinimg.com/736x/16/63/dc/1663dcec9d21bd576c719d0a6d645bc5.jpg`}
               alt="CineVido Admin"
               className="w-full h-full object-cover rounded-full border-accent"
             />

@@ -39,7 +39,7 @@ const Header = ({ onGenreSelect, selectedGenre }) => {
         {/* Logo and title */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           <img 
-            src={`/favicon.ico`}
+            src={`https://i.pinimg.com/736x/16/63/dc/1663dcec9d21bd576c719d0a6d645bc5.jpg`}
             alt="Cinevido" 
             className="h-14 w-14 sm:h-16 sm:w-16 rounded-full"
           />
